@@ -11,7 +11,7 @@ import SwiftUI
 struct ios_angry_fogApp: App {
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            ContentView(viewModel: FrogViewModel())
         }
     }
 }
