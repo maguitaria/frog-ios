@@ -1,7 +1,7 @@
 # 🐸 Angry Frog (iOS)
 
 A playful, synchronized noise-making app where frogs scream in unison across devices. This is the iOS counterpart to our original [Android version](https://git-iit.fh-joanneum.at/nowotnyt19/angry-frog) — same chaos, new platform.
-
+Figma link for UI design : [UI design](https://www.figma.com/design/SswFEXF8e8v0aPOke8CxBk/Untitled?node-id=1-1188&t=n3Mnd1enVA5zbIcz-1)
 ---
 
 ## 📱 What It Does
