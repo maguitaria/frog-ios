@@ -18,17 +18,7 @@ struct ContentView: View {
                     .font(.largeTitle)
                     .bold()
 
-                Image(viewModel.isScreaming ? "frog_screaming" : "frog_calm")
-                    .resizable()
-                    .aspectRatio(contentMode: .fit)
-                    .frame(width: 200, height: 200)
-                    .onTapGesture {
-                        viewModel.triggerScream()
-                    }
-
-                Button("Request Permissions") {
-                    viewModel.showFakePermissions()
-                }
+             
             }
         }
     }

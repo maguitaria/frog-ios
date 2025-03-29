@@ -10,21 +10,25 @@ import AVFoundation
 
 class FrogViewModel: ObservableObject {
     @Published var isScreaming = false
+      @Published var statusImageName = "frog-calm"
 
-    func triggerScream() {
-        isScreaming = true
-        SoundPlayer.playSound(named: "scream")
+      func checkFrogStatus() {
+          let chance = Int.random(in: 1...10)
+          if chance > 7 {
+              statusImageName = "frog-screaming"
+          } else {
+              statusImageName = "frog-calm"
+          }
+          print("Frog status checked: \(statusImageName)")
+      }
 
-        // Reset state after delay
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
-            self.isScreaming = false
-        }
+      func showFakePermissions() {
+          print("Pretending to request Bluetooth, Location, and WLAN access…")
+      }
 
-        // Simulate broadcast to other devices
-        print("Sending fake scream signal to nearby devices…")
-    }
-
-    func showFakePermissions() {
-        print("Pretending to request Bluetooth, Location, and WLAN access…")
-    }
-}
+      func simulateFriendsFrogScreams() {
+          let friends = ["Alice", "Bob", "Charlie"]
+          let screaming = friends.shuffled().prefix(Int.random(in: 1...friends.count))
+          print("📢 Screaming frogs from friends: \(screaming.joined(separator: ", "))")
+      }
+  }

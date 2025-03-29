@@ -6,12 +6,25 @@
 //
 
 import SwiftUI
+import CoreLocation
 
 @main
-struct ios_angry_fogApp: App {
+struct AngryFrogApp: App {
     var body: some Scene {
         WindowGroup {
-            ContentView(viewModel: FrogViewModel())
+            AppEntry()
+        }
+    }
+}
+
+struct AppEntry: View {
+    @State private var showMainView = false
+
+    var body: some View {
+        if showMainView {
+            MainTabView()
+        } else {
+            LoadingView(showMainView: $showMainView)
         }
     }
 }
