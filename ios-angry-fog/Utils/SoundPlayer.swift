@@ -4,17 +4,19 @@
 //
 //  Created by Mariia Glushenkova on 28.3.2025.
 //
-
 import AVFoundation
 
-struct SoundPlayer {
-    static func playSound(named name: String) {
-        guard let soundURL = Bundle.main.url(forResource: name, withExtension: "mp3") else { return }
+class FrogSoundManager {
+    static var player: AVAudioPlayer?
+
+    static func scream() {
+        guard let url = Bundle.main.url(forResource: "scream", withExtension: "mp3") else { return }
+
         do {
-            let player = try AVAudioPlayer(contentsOf: soundURL)
-            player.play()
+            player = try AVAudioPlayer(contentsOf: url)
+            player?.play()
         } catch {
-            print("Error playing sound: \(error.localizedDescription)")
+            print("Failed to play scream sound: \(error.localizedDescription)")
         }
     }
 }

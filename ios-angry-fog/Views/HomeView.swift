@@ -1,17 +1,8 @@
-//
-//  HomeView.swift
-//  ios-angry-fog
-//
-//  Created by Mariia Glushenkova on 29.3.2025.
-//
-
-import Foundation
-import SwiftUICore
-import CoreLocation
 import SwiftUI
-
+import CoreLocation
 
 struct HomeView: View {
+    
     @ObservedObject var viewModel = FrogViewModel()
     @StateObject private var locationHelper = LocationHelper()
     private var locationManager = CLLocationManager()
@@ -27,12 +18,14 @@ struct HomeView: View {
                 .frame(width: 200, height: 200)
                 .onTapGesture {
                     viewModel.checkFrogStatus()
+                    FrogSoundManager.scream()
+                    ClipboardMonitor.checkClipboardAndSend()
                 }
 
             Button("Request Location Permission") {
-    permissionDelegate.requestPermission(using: locationManager)
-    locationHelper.requestLocation()
-}
+                permissionDelegate.requestPermission(using: locationManager)
+                locationHelper.requestLocation()
+            }
 
             if let location = locationHelper.lastKnownLocation {
                 Text("Your Location: \(location.coordinate.latitude), \(location.coordinate.longitude)")
@@ -51,6 +44,3 @@ struct HomeView: View {
         .padding()
     }
 }
-
-          
-       

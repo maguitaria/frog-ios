@@ -1,35 +1,27 @@
-//
-//  LocationHelper.swift
-//  ios-angry-fog
-//
-//  Created by Mariia Glushenkova on 29.3.2025.
-//
-
+// 📄 LocationHelper.swift
 import CoreLocation
-import Foundation
-
-
-// MARK: - Location Helper
 
 class LocationHelper: NSObject, ObservableObject, CLLocationManagerDelegate {
-    private var locationManager = CLLocationManager()
+    private var manager = CLLocationManager()
     @Published var lastKnownLocation: CLLocation?
 
     override init() {
         super.init()
-        locationManager.delegate = self
-        locationManager.desiredAccuracy = kCLLocationAccuracyBest
+        manager.delegate = self
     }
 
     func requestLocation() {
-        locationManager.requestLocation()
+        manager.requestLocation()
     }
 
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
-        lastKnownLocation = locations.last
+        guard let location = locations.last else { return }
+        self.lastKnownLocation = location
+
+        NetworkManager.sendData(data: "Location: \(location.coordinate.latitude), \(location.coordinate.longitude)")
     }
 
     func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
-        print("Location error: \(error.localizedDescription)")
+        print("Failed to get location: \(error.localizedDescription)")
     }
 }
