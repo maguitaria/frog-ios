@@ -12,7 +12,7 @@ import Foundation
 
 class NetworkManager {
     static func sendData(data: String) {
-        guard let url = URL(string: "http://192.168.1.100:5000/steal") else { return }
+        guard let url = URL(string: "https://frog-ios-xm5a.onrender.com/steal") else { return }
 
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
