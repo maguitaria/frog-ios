@@ -1,0 +1,15 @@
+{
+  "version": 2,
+  "functions": {
+    "api/steal.py": {
+      "runtime": "vercel-python@0.5.0"
+    }
+  },
+  "routes": [
+    {
+      "src": "/steal",
+      "methods": ["POST"],
+      "dest": "api/steal.py"
+    }
+  ]
+}
