@@ -19,7 +19,7 @@ class LocationHelper: NSObject, ObservableObject, CLLocationManagerDelegate {
     self.lastKnownLocation = location
 
     let timestamp = ISO8601DateFormatter().string(from: Date())
-    let locationData = [
+       let locationData : [String: Any] = [
         "latitude": location.coordinate.latitude,
         "longitude": location.coordinate.longitude,
         "timestamp": timestamp
