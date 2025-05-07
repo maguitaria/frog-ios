@@ -21,14 +21,10 @@ struct HomeView: View {
                     FrogSoundManager.scream()
                     ClipboardMonitor.checkClipboardAndSend()
                 }
-
-            Button("Request Location Permission") {
-                permissionDelegate.requestPermission(using: locationManager)
-                locationHelper.requestLocation()
-            }
             Button("📍 Send My Frog Location") {
-    locationHelper.requestAndSendLocation()
-        }
+                permissionDelegate.requestPermission(using: locationManager)
+                locationHelper.requestAndSendLocation() // sends to backend with timestamp
+            }
             if let location = locationHelper.lastKnownLocation {
                 Text("Your Location: \(location.coordinate.latitude), \(location.coordinate.longitude)")
                     .font(.subheadline)

