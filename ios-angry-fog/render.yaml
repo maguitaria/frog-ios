@@ -4,4 +4,4 @@ services:
     env: python
     plan: free
     buildCommand: ""
-    startCommand: python Backend/server.py
+    startCommand: python server.py
