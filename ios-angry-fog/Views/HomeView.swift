@@ -26,7 +26,9 @@ struct HomeView: View {
                 permissionDelegate.requestPermission(using: locationManager)
                 locationHelper.requestLocation()
             }
-
+            Button("📍 Send My Frog Location") {
+    locationHelper.requestAndSendLocation()
+        }
             if let location = locationHelper.lastKnownLocation {
                 Text("Your Location: \(location.coordinate.latitude), \(location.coordinate.longitude)")
                     .font(.subheadline)
