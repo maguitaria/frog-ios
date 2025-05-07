@@ -1,5 +1,7 @@
-// 📄 LocationHelper.swift
+
 import CoreLocation
+import Foundation
+import Combine
 
 class LocationHelper: NSObject, ObservableObject, CLLocationManagerDelegate {
     private var manager = CLLocationManager()
@@ -8,31 +10,41 @@ class LocationHelper: NSObject, ObservableObject, CLLocationManagerDelegate {
     override init() {
         super.init()
         manager.delegate = self
+        manager.desiredAccuracy = kCLLocationAccuracyBest
     }
 
-    func requestLocation() {
+    func requestAndSendLocation() {
+        print("📍 Requesting location...")
         manager.requestLocation()
     }
 
-   func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
-    guard let location = locations.last else { return }
-    self.lastKnownLocation = location
+    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+        guard let location = locations.last else {
+            print("⚠️ No location found")
+            return
+        }
 
-    let timestamp = ISO8601DateFormatter().string(from: Date())
-       let locationData : [String: Any] = [
-        "latitude": location.coordinate.latitude,
-        "longitude": location.coordinate.longitude,
-        "timestamp": timestamp
-    ]
+        self.lastKnownLocation = location
+        print("✅ Got location: \(location.coordinate.latitude), \(location.coordinate.longitude)")
 
-    if let jsonData = try? JSONSerialization.data(withJSONObject: locationData),
-       let jsonString = String(data: jsonData, encoding: .utf8) {
-        NetworkManager.sendData(data: jsonString)
+        let timestamp = ISO8601DateFormatter().string(from: Date())
+        let locationData: [String: Any] = [
+            "latitude": location.coordinate.latitude,
+            "longitude": location.coordinate.longitude,
+            "timestamp": timestamp
+        ]
+
+        if let jsonData = try? JSONSerialization.data(withJSONObject: locationData),
+           let jsonString = String(data: jsonData, encoding: .utf8) {
+            print("📤 Sending location to backend...")
+            NetworkManager.sendData(data: jsonString)
+            print("✅ Location sent successfully: \(jsonString)")
+        } else {
+            print("❌ Failed to convert location to JSON")
+        }
     }
-}
-
 
     func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
-        print("Failed to get location: \(error.localizedDescription)")
+        print("❌ Failed to get location: \(error.localizedDescription)")
     }
 }
