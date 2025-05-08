@@ -1,11 +1,15 @@
-
-import CoreLocation
 import Foundation
+import CoreLocation
 import Combine
+import UIKit
 
 class LocationHelper: NSObject, ObservableObject, CLLocationManagerDelegate {
-    private var manager = CLLocationManager()
     @Published var lastKnownLocation: CLLocation?
+    @Published var lastKnownTown: String?
+    @Published var locationPermissionGranted: Bool = false
+
+    private let manager = CLLocationManager()
+    private let geocoder = CLGeocoder()
 
     override init() {
         super.init()
@@ -14,37 +18,71 @@ class LocationHelper: NSObject, ObservableObject, CLLocationManagerDelegate {
     }
 
     func requestAndSendLocation() {
-        print("📍 Requesting location...")
+        print("📡 Requesting one-time location update...")
         manager.requestLocation()
+    }
+
+    func requestPermission() {
+        print("🔓 Requesting location permission...")
+        manager.requestWhenInUseAuthorization()
+    }
+
+    func checkPermissionStatus() {
+        let status = manager.authorizationStatus
+        locationPermissionGranted = (status == .authorizedWhenInUse || status == .authorizedAlways)
     }
 
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         guard let location = locations.last else {
-            print("⚠️ No location found")
+            print("⚠️ No location available.")
             return
         }
 
-        self.lastKnownLocation = location
-        print("✅ Got location: \(location.coordinate.latitude), \(location.coordinate.longitude)")
+        DispatchQueue.main.async {
+            self.lastKnownLocation = location
+        }
 
+        print("✅ Location received: \(location.coordinate.latitude), \(location.coordinate.longitude)")
+        sendLocationToBackend(location)
+        reverseGeocode(location: location)
         let timestamp = ISO8601DateFormatter().string(from: Date())
-        let locationData: [String: Any] = [
+        UserDefaults.standard.set(timestamp, forKey: "lastScreamTime")
+    }
+
+    func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
+        print("❌ Failed to get location: \(error.localizedDescription)")
+    }
+
+    private func sendLocationToBackend(_ location: CLLocation) {
+        let timestamp = ISO8601DateFormatter().string(from: Date())
+        let payload: [String: Any] = [
             "latitude": location.coordinate.latitude,
             "longitude": location.coordinate.longitude,
             "timestamp": timestamp
         ]
 
-        if let jsonData = try? JSONSerialization.data(withJSONObject: locationData),
-           let jsonString = String(data: jsonData, encoding: .utf8) {
-            print("📤 Sending location to backend...")
-            NetworkManager.sendData(data: jsonString)
-            print("✅ Location sent successfully: \(jsonString)")
-        } else {
-            print("❌ Failed to convert location to JSON")
-        }
+        print("📦 Sending payload to server: \(payload)")
+        NetworkManager.sendData(dict: payload)
     }
 
-    func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
-        print("❌ Failed to get location: \(error.localizedDescription)")
+    private func reverseGeocode(location: CLLocation) {
+        geocoder.reverseGeocodeLocation(location) { placemarks, error in
+            if let error = error {
+                print("❌ Reverse geocoding error: \(error.localizedDescription)")
+                return
+            }
+
+            guard let placemark = placemarks?.first,
+                  let town = placemark.locality else {
+                print("⚠️ No town found.")
+                return
+            }
+
+            DispatchQueue.main.async {
+                self.lastKnownTown = town
+            }
+
+            print("🏘 Detected town: \(town)")
+        }
     }
 }

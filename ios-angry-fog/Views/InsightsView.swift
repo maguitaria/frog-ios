@@ -1,3 +1,11 @@
+//
+//  InsightsView.swift
+//  ios-angry-fog
+//
+//  Created by Mariia Glushenkova on 8.5.2025.
+//
+
+
 import SwiftUI
 
 struct InsightsView: View {

