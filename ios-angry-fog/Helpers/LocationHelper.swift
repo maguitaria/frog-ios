@@ -1,7 +1,7 @@
+
 import Foundation
 import CoreLocation
 import Combine
-import UIKit
 
 class LocationHelper: NSObject, ObservableObject, CLLocationManagerDelegate {
     @Published var lastKnownLocation: CLLocation?
@@ -15,21 +15,17 @@ class LocationHelper: NSObject, ObservableObject, CLLocationManagerDelegate {
         super.init()
         manager.delegate = self
         manager.desiredAccuracy = kCLLocationAccuracyBest
-    }
-
-    func requestAndSendLocation() {
-        print("📡 Requesting one-time location update...")
-        manager.requestLocation()
-    }
-
-    func requestPermission() {
-        print("🔓 Requesting location permission...")
         manager.requestWhenInUseAuthorization()
+        manager.startUpdatingLocation()
     }
 
-    func checkPermissionStatus() {
+    func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
         let status = manager.authorizationStatus
         locationPermissionGranted = (status == .authorizedWhenInUse || status == .authorizedAlways)
+
+        if locationPermissionGranted {
+            manager.startUpdatingLocation()
+        }
     }
 
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
@@ -45,8 +41,6 @@ class LocationHelper: NSObject, ObservableObject, CLLocationManagerDelegate {
         print("✅ Location received: \(location.coordinate.latitude), \(location.coordinate.longitude)")
         sendLocationToBackend(location)
         reverseGeocode(location: location)
-        let timestamp = ISO8601DateFormatter().string(from: Date())
-        UserDefaults.standard.set(timestamp, forKey: "lastScreamTime")
     }
 
     func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
@@ -60,9 +54,7 @@ class LocationHelper: NSObject, ObservableObject, CLLocationManagerDelegate {
             "longitude": location.coordinate.longitude,
             "timestamp": timestamp
         ]
-
-        print("📦 Sending payload to server: \(payload)")
-        NetworkManager.sendData(dict: payload)
+        NetworkManager.postJSON(to: "location", payload: payload)
     }
 
     private func reverseGeocode(location: CLLocation) {
@@ -72,8 +64,7 @@ class LocationHelper: NSObject, ObservableObject, CLLocationManagerDelegate {
                 return
             }
 
-            guard let placemark = placemarks?.first,
-                  let town = placemark.locality else {
+            guard let placemark = placemarks?.first, let town = placemark.locality else {
                 print("⚠️ No town found.")
                 return
             }

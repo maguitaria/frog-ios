@@ -1,5 +1,4 @@
 import SwiftUI
-import CoreLocation
 
 struct MainTabView: View {
     var body: some View {
@@ -8,7 +7,7 @@ struct MainTabView: View {
                 .tabItem {
                     Label("Home", systemImage: "house")
                 }
-            
+
             MapView()
                 .tabItem {
                     Label("Map", systemImage: "map")
@@ -22,6 +21,11 @@ struct MainTabView: View {
             InsightsView()
                 .tabItem {
                     Label("Insights", systemImage: "chart.bar")
+                }
+
+            TravelModeView()
+                .tabItem {
+                    Label("Travel Mode", systemImage: "phone.fill")
                 }
 
             SettingsView()

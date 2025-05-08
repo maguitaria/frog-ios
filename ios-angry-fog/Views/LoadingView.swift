@@ -1,30 +1,27 @@
 import SwiftUI
 
 struct LoadingView: View {
-    @Binding var showMainView: Bool
-    @State private var isAnimating = false
+    @State private var animate = false
 
     var body: some View {
-        VStack(spacing: 20) {
-            Image("loading-frog")
-                .resizable()
-                .frame(width: 120, height: 120)
-                .rotationEffect(.degrees(isAnimating ? 360 : 0))
-                .animation(.linear(duration: 2).repeatForever(autoreverses: false), value: isAnimating)
+        ZStack {
+            LinearGradient(gradient: Gradient(colors: [.mint, .cyan]), startPoint: .topLeading, endPoint: .bottomTrailing)
+                .edgesIgnoringSafeArea(.all)
 
-            Text("Angry Frog")
-                .font(.title)
-                .bold()
+            VStack(spacing: 20) {
+                Image(systemName: "shield.lefthalf.filled")
+                    .font(.system(size: 80))
+                    .foregroundColor(.white)
+                    .rotationEffect(.degrees(animate ? 360 : 0))
+                    .animation(.easeInOut(duration: 2).repeatForever(autoreverses: false), value: animate)
 
-            Text("Loading...")
-                .font(.subheadline)
-                .foregroundColor(.gray)
+                Text("FrogGuard")
+                    .font(.system(size: 34, weight: .bold, design: .rounded))
+                    .foregroundColor(.white)
+            }
         }
         .onAppear {
-            isAnimating = true
-            DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-                showMainView = true
-            }
+            animate = true
         }
     }
 }

