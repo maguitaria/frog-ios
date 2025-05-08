@@ -1,13 +1,5 @@
-//
-//  MainTabView.swift
-//  ios-angry-fog
-//
-//  Created by Mariia Glushenkova on 29.3.2025.
-//
-
-import SwiftUICore
 import SwiftUI
-
+import CoreLocation
 
 struct MainTabView: View {
     var body: some View {
@@ -16,10 +8,20 @@ struct MainTabView: View {
                 .tabItem {
                     Label("Home", systemImage: "house")
                 }
-
-            ProfileView()
+            
+            MapView()
                 .tabItem {
-                    Label("Profile", systemImage: "person")
+                    Label("Map", systemImage: "map")
+                }
+
+            ReportView()
+                .tabItem {
+                    Label("Report", systemImage: "exclamationmark.bubble")
+                }
+
+            InsightsView()
+                .tabItem {
+                    Label("Insights", systemImage: "chart.bar")
                 }
 
             SettingsView()
