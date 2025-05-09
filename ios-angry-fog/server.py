@@ -1,54 +1,112 @@
 from flask import Flask, request, jsonify
 from datetime import datetime
 from flask_cors import CORS
-import json
 import requests
 import os
 from dotenv import load_dotenv
+from flask_sqlalchemy import SQLAlchemy
+
 load_dotenv()
 
 app = Flask(__name__)
 CORS(app)
 
-# In-memory storage (for demo purposes)
-incident_reports = []
-simulated_data = []
+# 🛠 Database config
+app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv("DATABASE_URL").replace("postgres://", "postgresql://", 1)
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+db = SQLAlchemy(app)
+
+# 🧾 Models
+class Report(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    category = db.Column(db.String(80))
+    description = db.Column(db.String(200))
+    timestamp = db.Column(db.String(40))
+
+class SimulatedEntry(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    device = db.Column(db.String(80))
+    os = db.Column(db.String(80))
+    clipboard = db.Column(db.String(500))
+    timestamp = db.Column(db.String(40))
+
+# 🌍 Latest user location
 latest_location = {"latitude": None, "longitude": None, "timestamp": None}
+
+@app.before_first_request
+def create_tables():
+    db.create_all()
 
 @app.route("/")
 def home():
     return "🐸 FrogGuard API is running!"
 
-# 🧾 Endpoint to receive anonymous civil safety reports
+# 🧾 Save incident report
 @app.route("/report", methods=["POST"])
 def receive_report():
     data = request.json
-    data["timestamp"] = datetime.utcnow().isoformat()
-    incident_reports.append(data)
-    print(f"[+] Incident received: {data}")
+    report = Report(
+        category=data.get("category"),
+        description=data.get("description"),
+        timestamp=datetime.utcnow().isoformat()
+    )
+    db.session.add(report)
+    db.session.commit()
+    print(f"[+] Incident saved to DB: {data}")
     return jsonify({"status": "✅ report saved"})
 
-# 🧪 Endpoint to receive simulated privacy leak payloads
+# 🔍 Get recent reports
+@app.route("/reports", methods=["GET"])
+def get_reports():
+    reports = Report.query.order_by(Report.timestamp.desc()).limit(20).all()
+    return jsonify([{
+        "category": r.category,
+        "description": r.description,
+        "timestamp": r.timestamp
+    } for r in reports])
+
+# 🧪 Save simulated data
 @app.route("/simulate", methods=["POST"])
 def receive_simulated_data():
     data = request.json
-    data["timestamp"] = datetime.utcnow().isoformat()
-    simulated_data.append(data)
-    print(f"[!] Simulated data received: {data}")
-    return jsonify({"status": "🧪 simulated data received"})
+    entry = SimulatedEntry(
+        device=data.get("device"),
+        os=data.get("os"),
+        clipboard=data.get("clipboard"),
+        timestamp=datetime.utcnow().isoformat()
+    )
+    db.session.add(entry)
+    db.session.commit()
+    print(f"[!] Simulated entry saved: {data}")
+    return jsonify({"status": "🧪 simulated data saved"})
 
-# 📡 Optional: Receive user GPS location directly
+# 🧪 Get simulated entries
+@app.route("/simulated", methods=["GET"])
+def get_simulated():
+    entries = SimulatedEntry.query.order_by(SimulatedEntry.timestamp.desc()).limit(20).all()
+    return jsonify([{
+        "device": e.device,
+        "os": e.os,
+        "clipboard": e.clipboard,
+        "timestamp": e.timestamp
+    } for e in entries])
+
+# 📍 Save latest location
 @app.route("/location", methods=["POST"])
 def receive_location():
     global latest_location
-    data = request.get_json()
-    data["timestamp"] = datetime.utcnow().isoformat()
+    data = request.json
     if "latitude" in data and "longitude" in data:
-        latest_location = data
-        print(f"[🐸] Frog location updated: {data}")
+        latest_location = {
+            "latitude": data["latitude"],
+            "longitude": data["longitude"],
+            "timestamp": datetime.utcnow().isoformat()
+        }
+        print(f"[🐸] Location saved: {latest_location}")
         return jsonify({"status": "📍 location saved"}), 200
     return jsonify({"error": "Missing coordinates"}), 400
 
+# 🌀 Air quality proxy
 @app.route("/air", methods=["GET"])
 def get_air_quality():
     lat = request.args.get("lat")
@@ -60,21 +118,12 @@ def get_air_quality():
 
     url = f"http://api.openweathermap.org/data/2.5/air_pollution?lat={lat}&lon={lon}&appid={api_key}"
     response = requests.get(url)
+    return jsonify(response.json()) if response.ok else jsonify({"error": "Failed to fetch data"}), 500
 
-    if response.ok:
-        return jsonify(response.json())
-    else:
-        return jsonify({"error": "Failed to fetch data"}), 500
-
-@app.route("/dashboard")
-def dashboard():
-    return app.send_static_file("frog_dashboard.html")
-
-
-# 🌍 Visual map of last frog scream (HTML UI)
+# 🌐 View latest location on map
 @app.route("/map", methods=["GET"])
 def show_map():
-    if latest_location["latitude"] is None:
+    if not latest_location["latitude"]:
         return "No frog has screamed yet 🐸"
 
     lat = latest_location["latitude"]
@@ -95,24 +144,16 @@ def show_map():
         <p><b>Latitude:</b> {lat}</p>
         <p><b>Longitude:</b> {lon}</p>
         <p><b>Time:</b> {time}</p>
-
         <h2>🗺️ Location on Map</h2>
-        <iframe
-            src="https://maps.google.com/maps?q={lat},{lon}&z=15&output=embed"
-            allowfullscreen>
-        </iframe>
+        <iframe src="https://maps.google.com/maps?q={lat},{lon}&z=15&output=embed"></iframe>
     </body>
     </html>
     """
 
-# 📥 View recent reports & simulated data
-@app.route("/reports", methods=["GET"])
-def get_reports():
-    return jsonify(incident_reports[-20:])
-
-@app.route("/simulated", methods=["GET"])
-def get_simulated():
-    return jsonify(simulated_data[-20:])
+# 🧾 Serve dashboard (HTML template)
+@app.route("/dashboard")
+def dashboard():
+    return app.send_static_file("frog_dashboard.html")
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000)
+    app.run(host="0.0.0.0", port=5001)

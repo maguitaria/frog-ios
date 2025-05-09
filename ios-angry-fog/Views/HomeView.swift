@@ -127,7 +127,7 @@ struct HomeView: View {
                         let notes = first["notes"] as? String ?? "Check map for more."
                         DispatchQueue.main.async {
                             statusMessage = "⚠️ Conflict: \\(eventType)"
-                            sendLocalAlert(title: "Nearby Conflict", body: notes)
+                           // sendLocalAlert(title: "Nearby Conflict", body: notes)
                         }
                     } else {
                         DispatchQueue.main.async {
@@ -146,7 +146,7 @@ struct HomeView: View {
         let lat = location.coordinate.latitude
         let lon = location.coordinate.longitude
 
-        let urlStr = "https://your-backend-url/dashboard?lat=\(lat)&lon=\(lon)"
+        let urlStr = "https://frog-ios-xm5a.onrender.com/dashboard?lat=\(lat)&lon=\(lon)"
         guard let url = URL(string: urlStr) else { return }
 
         URLSession.shared.dataTask(with: url) { data, _, _ in
