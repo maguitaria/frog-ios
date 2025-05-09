@@ -7,7 +7,7 @@ class LocationHelper: NSObject, ObservableObject, CLLocationManagerDelegate {
     @Published var lastKnownLocation: CLLocation?
     @Published var lastKnownTown: String?
     @Published var locationPermissionGranted: Bool = false
-
+    var onLocationFetched: ((CLLocation) -> Void)?
     private let manager = CLLocationManager()
     private let geocoder = CLGeocoder()
 
@@ -27,20 +27,17 @@ class LocationHelper: NSObject, ObservableObject, CLLocationManagerDelegate {
             manager.startUpdatingLocation()
         }
     }
+    
+    func requestAndSendLocation() {
+        manager.requestLocation()
+    }
 
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
-        guard let location = locations.last else {
-            print("⚠️ No location available.")
-            return
-        }
-
+        guard let location = locations.last else { return }
         DispatchQueue.main.async {
             self.lastKnownLocation = location
+            self.onLocationFetched?(location) // 🟢 callback
         }
-
-        print("✅ Location received: \(location.coordinate.latitude), \(location.coordinate.longitude)")
-        sendLocationToBackend(location)
-        reverseGeocode(location: location)
     }
 
     func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {

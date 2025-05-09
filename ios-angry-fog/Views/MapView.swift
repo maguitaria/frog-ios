@@ -1,113 +1,98 @@
 import SwiftUI
 import MapKit
 
+struct ConflictEvent: Identifiable, Decodable {
+    let id: String
+    let event_type: String
+    let location: String
+    let notes: String
+    let event_date: String
+    let latitude: Double
+    let longitude: Double
+}
+
 struct MapView: View {
     @State private var region = MKCoordinateRegion(
-        center: CLLocationCoordinate2D(latitude: 48.2, longitude: 16.3),
-        span: MKCoordinateSpan(latitudeDelta: 3, longitudeDelta: 3)
+        center: CLLocationCoordinate2D(latitude: 20.0, longitude: 0.0),
+        span: MKCoordinateSpan(latitudeDelta: 70, longitudeDelta: 140)
     )
-    @State private var showList = false
-    @State private var events: [DashboardData.ConflictEvent] = []
+
+    @State private var events: [ConflictEvent] = []
+    @State private var selectedEvent: ConflictEvent?
 
     var body: some View {
-        VStack(spacing: 0) {
-            Picker("View Mode", selection: $showList) {
-                Text("🗺️ Map").tag(false)
-                Text("📋 List").tag(true)
-            }
-            .pickerStyle(SegmentedPickerStyle())
-            .padding(.horizontal)
-
-            if showList {
-                ConflictListView(events: events)
-            } else {
-                ZStack(alignment: .bottom) {
-                    Map(coordinateRegion: $region, annotationItems: events) { event in
-                        MapAnnotation(coordinate: CLLocationCoordinate2D(latitude: 48.2, longitude: 16.3)) {
-                            VStack(spacing: 4) {
-                                Image(systemName: "exclamationmark.triangle.fill")
-                                    .foregroundColor(.red)
-                                Text(event.event_type)
-                                    .font(.caption2)
-                                    .padding(4)
-                                    .background(Color.white.opacity(0.8))
-                                    .cornerRadius(6)
-                            }
+        NavigationView {
+            ZStack {
+                Map(coordinateRegion: $region, annotationItems: events) { event in
+                    MapAnnotation(coordinate: CLLocationCoordinate2D(latitude: event.latitude, longitude: event.longitude)) {
+                        Button(action: {
+                            selectedEvent = event
+                        }) {
+                            Image(systemName: "exclamationmark.triangle.fill")
+                                .foregroundColor(.red)
+                                .imageScale(.large)
                         }
                     }
+                }
+                .ignoresSafeArea()
 
-                    if !events.isEmpty {
-                        EventFlashcardView(events: events)
-                            .padding(.bottom, 10)
+                if let selected = selectedEvent {
+                    VStack {
+                        Spacer()
+                        VStack(alignment: .leading, spacing: 6) {
+                            HStack {
+                                Text(selected.event_type)
+                                    .font(.headline)
+                                Spacer()
+                                Button("Close") {
+                                    selectedEvent = nil
+                                }
+                                .font(.caption)
+                            }
+                            Text(selected.location)
+                                .font(.subheadline)
+                            Text(selected.notes)
+                                .font(.caption)
+                                .lineLimit(3)
+                            Text("📅 \(selected.event_date)")
+                                .font(.caption2)
+                                .foregroundColor(.gray)
+                        }
+                        .padding()
+                        .background(.ultraThinMaterial)
+                        .cornerRadius(12)
+                        .padding()
                     }
                 }
-                .edgesIgnoringSafeArea(.bottom)
             }
+            .navigationTitle("Global Events Map")
         }
-        .onAppear(perform: fetchEvents)
+        .onAppear {
+            fetchConflictEvents()
+        }
     }
 
-    func fetchEvents() {
-        guard let url = URL(string: "https://frog-ios-xm5a.onrender.com/dashboard?lat=48.2&lon=16.3") else { return }
+    func fetchConflictEvents() {
+        let apiKey = "6lkzj93Ra3lvdeBKiW7U"
+        let email = "t2glma00@students.oamk.fi"
+        let urlString = "https://api.acleddata.com/acled/read?key=\(apiKey)&email=\(email)&limit=50"
 
-        URLSession.shared.dataTask(with: url) { data, _, _ in
-            guard let data = data,
-                  let decoded = try? JSONDecoder().decode(DashboardData.self, from: data) else { return }
+        guard let url = URL(string: "https://your-backend-or-proxy.com/events") else { return }
 
-            DispatchQueue.main.async {
-                events = decoded.conflict_events
+        URLSession.shared.dataTask(with: url) { data, _, error in
+            guard let data = data else {
+                print("❌ No data received")
+                return
+            }
+
+            do {
+                let decoded = try JSONDecoder().decode([ConflictEvent].self, from: data)
+                DispatchQueue.main.async {
+                    self.events = decoded
+                }
+            } catch {
+                print("❌ Failed to decode: \(error)")
             }
         }.resume()
-    }
-}
-
-struct ConflictListView: View {
-    var events: [DashboardData.ConflictEvent]
-
-    var body: some View {
-        List(events) { event in
-            VStack(alignment: .leading, spacing: 4) {
-                Text("⚠️ \(event.event_type)")
-                    .font(.headline)
-                Text(event.notes ?? "")
-                    .font(.subheadline)
-                    .foregroundColor(.gray)
-                Text("📅 \(event.event_date)")
-                    .font(.caption)
-                    .foregroundColor(.secondary)
-            }
-            .padding(.vertical, 4)
-        }
-    }
-}
-
-struct EventFlashcardView: View {
-    var events: [DashboardData.ConflictEvent]
-
-    var body: some View {
-        ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: 16) {
-                ForEach(events.prefix(5)) { event in
-                    VStack(alignment: .leading, spacing: 6) {
-                        Text("⚠️ \(event.event_type)")
-                            .font(.headline)
-                        Text(event.notes ?? "No description")
-                            .font(.caption)
-                            .foregroundColor(.gray)
-                        Text("📅 \(event.event_date)")
-                            .font(.caption2)
-                            .foregroundColor(.secondary)
-                    }
-                    .padding()
-                    .frame(width: 250)
-                    .background(.ultraThinMaterial)
-                    .cornerRadius(12)
-                    .shadow(radius: 4)
-                }
-            }
-            .padding(.horizontal)
-        }
-        .padding(.vertical)
-        .background(.thinMaterial)
     }
 }

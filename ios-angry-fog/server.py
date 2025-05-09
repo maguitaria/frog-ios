@@ -66,28 +66,10 @@ def get_air_quality():
     else:
         return jsonify({"error": "Failed to fetch data"}), 500
 
-@app.route("/dashboard", methods=["GET"])
-def get_dashboard_data():
-    lat = request.args.get("lat")
-    lon = request.args.get("lon")
+@app.route("/dashboard")
+def dashboard():
+    return app.send_static_file("frog_dashboard.html")
 
-    if not lat or not lon:
-        return jsonify({"error": "Missing lat/lon"}), 400
-
-    # Air Quality
-    owm_key = os.getenv("OWM_KEY")
-    air_url = f"http://api.openweathermap.org/data/2.5/air_pollution?lat={lat}&lon={lon}&appid={owm_key}"
-    air_data = requests.get(air_url).json()
-
-    # Conflict Data (ACLED API)
-    acled_key = os.getenv("ACLED_KEY")
-    acled_url = f"https://api.acleddata.com/acled/read?key={acled_key}&event_date=2024-01-01|{datetime.utcnow().date()}&latitude={lat}&longitude={lon}&limit=5"
-    conflict_data = requests.get(acled_url).json()
-
-    return jsonify({
-        "air_quality": air_data,
-        "conflict_events": conflict_data.get("data", [])
-    })
 
 # 🌍 Visual map of last frog scream (HTML UI)
 @app.route("/map", methods=["GET"])
