@@ -33,7 +33,7 @@ class SimulatedEntry(db.Model):
 # 🌍 Latest user location
 latest_location = {"latitude": None, "longitude": None, "timestamp": None}
 
-@app.before_first_request
+@app.before_request
 def create_tables():
     db.create_all()
 
