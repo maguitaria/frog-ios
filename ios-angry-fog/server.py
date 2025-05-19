@@ -69,10 +69,6 @@ class SimulatedEntry(db.Model):
     clipboard = db.Column(db.String(500))
     timestamp = db.Column(db.DateTime, default=datetime.utcnow)
 
-# Ensure tables are created
-@app.before_first_request
-def create_tables():
-    db.create_all()
 
 # ----------------------
 # API ROUTES
@@ -253,4 +249,6 @@ def dashboard():
     return app.send_static_file("frog_dashboard.html")
 
 if __name__ == "__main__":
+   with app.app_context():
+        db.create_all()
     app.run(host="0.0.0.0", port=5001)
