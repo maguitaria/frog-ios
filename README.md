@@ -3,10 +3,12 @@
 
 ![alt text](./ios-angry-fog/screenshots/Screenshot 2025-05-24 at 14.10.32.png) 
 
+![alt text](image.png)
 **FrogGuard** is a playful and satirical mobile application built to explore privacy, surveillance, and emergency safety through a fictional frog-themed interface. Built using **SwiftUI** on the frontend and **Python Flask** for the backend, this app mimics real-world scenarios in a humorous but thought-provoking way.
 
 
 Figma link for UI design : [UI design](https://www.figma.com/design/SswFEXF8e8v0aPOke8CxBk/Untitled?node-id=1-1188&t=n3Mnd1enVA5zbIcz-1)
+
 ---
 
 ### 📱 iOS App (SwiftUI)
