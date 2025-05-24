@@ -1,68 +1,98 @@
-# 🐸 Angry Frog (iOS)
 
-A playful, synchronized noise-making app where frogs scream in unison across devices. This is the iOS counterpart to our original [Android version](https://git-iit.fh-joanneum.at/nowotnyt19/angry-frog) — same chaos, new platform.
+## 🐸 FrogGuard: iOS + Python Privacy Awareness App
+
+![alt text](./ios-angry-fog/screenshots/Screenshot 2025-05-24 at 14.10.32.png) 
+
+**FrogGuard** is a playful and satirical mobile application built to explore privacy, surveillance, and emergency safety through a fictional frog-themed interface. Built using **SwiftUI** on the frontend and **Python Flask** for the backend, this app mimics real-world scenarios in a humorous but thought-provoking way.
+
+
 Figma link for UI design : [UI design](https://www.figma.com/design/SswFEXF8e8v0aPOke8CxBk/Untitled?node-id=1-1188&t=n3Mnd1enVA5zbIcz-1)
 ---
 
-## 📱 What It Does
+### 📱 iOS App (SwiftUI)
 
-- Tap the screen  
-  → The frog image changes  
-  → A scream sound plays
+#### Features:
 
-- At the same time…  
-  → Every **other device** with the app also screams!
+* **Privacy Settings**
 
-It’s a fun, harmless concept pretending to use **Bluetooth, WLAN, and location data** to find and trigger nearby frogs — all connected through a backend.
+  * Fake “Secure Mode”
+  * Optional clipboard and location tracking toggles
+* **Developer Options**
 
----
+  * Test Mode switch
+  * Reset app data
+* **Global Map**
 
-## 🔧 How It Works
+  * View worldwide incidents such as protests, accidents, and blockades
+* **Incident Reporting**
 
-The app simulates:
-- Nearby device discovery (via fake permissions)
-- Sound/image triggering across devices
-- A central backend to coordinate scream events
+  * Report events under categories like: Protest, Police Blockade, Medical Accident, Other
+* **Insights Tab**
 
-Backend communication is lightweight and could be expanded, but for now, it’s all about the *illusion* of smart tech behind very silly frogs.
+  * Displays simulated data access and report history
+* **Travel Mode**
 
----
+  * Emergency contacts and safety tips per country
+  * Embassy locator feature
+* **Frog Species**
 
-## 🍏 iOS Version Notes
-
-- Built with Swift / SwiftUI (or UIKit if applicable)
-- Same visual and audio assets as Android
-- Goal: parity with Android functionality
-- Bonus plan: **Apple Watch support** — tap your wrist, make frogs scream 🎉
+  * Fun classification (e.g., “Angry Screamer”)
 
 ---
 
-## 🔗 Android Version
+### 🌐 Backend (Python + Flask)
 
-Our original Android app repo is available [here](https://git-iit.fh-joanneum.at/nowotnyt19/angry-frog) (private repo – ask Arthur for access).
+#### API Endpoints:
+
+| Method | Endpoint           | Description                       |
+| ------ | ------------------ | --------------------------------- |
+| POST   | `/storestolen`     | Simulate device data being stored |
+| GET    | `/getlateststolen` | Retrieve latest fake data record  |
+| POST   | `/report`          | Submit incident report            |
+| GET    | `/reports`         | View recent 20 reports            |
+
+#### Example POST /report payload:
+
+```json
+{
+  "category": "Protest",
+  "description": "Political protest on Weidinger Strasse"
+}
+```
+
+#### Tech:
+
+* Flask + Flask-CORS
+* PostgreSQL on Render
+* SQLAlchemy ORM
+* `.env` configuration:
+
+  ```
+  DATABASE_URL=postgresql://username:password@host:port/dbname
+  ```
 
 ---
 
-## ⚠️ Disclaimer
+### 🚀 Getting Started
 
-This app is intentionally **not** sophisticated. It’s silly, fun, and meant to make people laugh — especially when multiple devices start screaming together.
+#### iOS (Xcode)
 
-No real location or Bluetooth data is used — just good old-fashioned frog-powered chaos.
+1. Open the project in Xcode (`FrogGuard.xcodeproj`)
+2. Set backend URL in `Environment.swift`
+3. Run on device or simulator (iOS 18.3+)
+
+#### Python (Backend)
+
+```bash
+pip install -r requirements.txt
+python server.py
+```
 
 ---
 
-## 🧪 Future Ideas
+### ⚠️ Disclaimer
 
-- Real device sync (Multipeer Connectivity, local network)
-- Web dashboard of frog activity
-- Cross-platform Apple Watch support
-- More frog personalities (screaming duck collab incoming?)
-
----
-
-## 📸 Screenshots
-
-> _(Coming soon — once we finalize iOS UI tweaks)_
+> This is a satire app created for learning and experimentation. It does **not** collect real personal data unless explicitly enabled by the user. Use responsibly.
 
 ---
 
@@ -70,9 +100,4 @@ No real location or Bluetooth data is used — just good old-fashioned frog-powe
 
 - iOS Devs: Christian Ackermann, Mariia Glushenkova, Arthur Nowotny
 - Android Repo: [Arthur Nowotny](https://git-iit.fh-joanneum.at/nowotnyt19/angry-frog)
-
 ---
-
-## 📬 Contact
-
-Got questions? Want to scream with us?  
