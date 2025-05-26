@@ -9,8 +9,7 @@ from typing import List
 
 app = FastAPI()
 
-DATABASE_URL = "postgresql://frog_guard_prod_user:xJxHxbuPQ4jtQLbVyc3LaKdQnNtiV8nH@oregon-postgres.render.com:5432" \
-               "/frog_guard_prod "
+DATABASE_URL = "postgresql://frog_guard_prod_user:xJxHxbuPQ4jtQLbVyc3LaKdQnNtiV8nH@oregon-postgres.render.com:5432/frog_guard_prod"
 
 
 class DeviceInfo(BaseModel):
