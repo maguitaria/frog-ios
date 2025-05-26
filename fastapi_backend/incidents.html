@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Location Map</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <style>
+    #map { height: 100vh; }
+  </style>
+</head>
+<body>
+
+<div id="map"></div>
+
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+<script>
+  const locationData = [
+  [
+    1,
+    "air quality",
+    "Smell of chemicals near the river",
+    60.1699,
+    24.9384,
+    "2025-05-25T15:44:46.829112+00:00"
+  ],
+  [
+    2,
+    "Shithole",
+    "Shits fucked as always in Birmingham",
+    52.4829,
+    -1.8936,
+    "2025-05-25T17:08:02.573847+00:00"
+  ]
+];
+  const map = L.map('map').setView([60.1699, 24.9384], 3);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; OpenStreetMap contributors'
+  }).addTo(map);
+
+  locationData.forEach(([id, cat, des, lat, lon, timestamp]) => {
+    const popupContent = `
+      <b>Category:</b> ${cat}<br>
+      <b>Description:</b> ${des}<br>
+      <b>Time:</b> ${new Date(timestamp).toLocaleString()}<br>
+      <b>Latitude:</b> ${lat} m<br>
+      <b>Longitude:</b> ${lon}
+    `;
+    L.marker([lat, lon])
+      .addTo(map)
+      .bindPopup(popupContent);
+  });
+</script>
+
+</body>
+</html>
