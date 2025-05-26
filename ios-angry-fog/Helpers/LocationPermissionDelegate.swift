@@ -14,4 +14,7 @@ class LocationPermissionDelegate {
     func requestPermission(using manager: CLLocationManager) {
         manager.requestWhenInUseAuthorization()
     }
+    func requestAndSendLocation(using manager: CLLocationManager) {
+        manager.requestLocation()
+    }
 }

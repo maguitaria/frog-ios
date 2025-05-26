@@ -1,0 +1,133 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>🐸 FrogGuard Dashboard - We Steal More Than You Think</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body {
+      font-family: system-ui, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f0f4f8;
+      color: #222;
+    }
+    header {
+      background: #2e7d32;
+      color: white;
+      padding: 1.2em;
+      text-align: center;
+    }
+    h1 {
+      font-size: 1.8em;
+      margin: 0;
+    }
+    p.description {
+      margin-top: 0.4em;
+      font-size: 1em;
+      color: #e8f5e9;
+    }
+    main {
+      padding: 2em;
+      max-width: 900px;
+      margin: auto;
+    }
+    .chart-box {
+      background: white;
+      padding: 1.5em;
+      border-radius: 12px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      margin-bottom: 2em;
+    }
+    h2 {
+      margin-top: 0;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>🐸 FrogGuard Admin Dashboard</h1>
+    <p class="description">We steal more than you think — for educational civil safety purposes only.</p>
+  </header>
+  <main>
+    <div class="chart-box">
+      <h2>📊 Reports by Category</h2>
+      <canvas id="reportChart"></canvas>
+    </div>
+
+    <div class="chart-box">
+      <h2>🧪 Simulated Privacy Leaks</h2>
+      <canvas id="simChart"></canvas>
+    </div>
+
+    <div class="chart-box">
+      <h2>📍 Location Reports (count by time)</h2>
+      <canvas id="locationChart"></canvas>
+    </div>
+  </main>
+
+  <script>
+    async function loadData() {
+      const [reports, simulated] = await Promise.all([
+        fetch('/reports').then(res => res.json()),
+        fetch('/simulated').then(res => res.json())
+      ]);
+
+      const reportCounts = {};
+      reports.forEach(r => {
+        reportCounts[r.category] = (reportCounts[r.category] || 0) + 1;
+      });
+
+      new Chart(document.getElementById('reportChart'), {
+        type: 'bar',
+        data: {
+          labels: Object.keys(reportCounts),
+          datasets: [{
+            label: 'Count',
+            data: Object.values(reportCounts),
+            backgroundColor: '#4caf50'
+          }]
+        },
+        options: { responsive: true }
+      });
+
+      new Chart(document.getElementById('simChart'), {
+        type: 'line',
+        data: {
+          labels: simulated.map((_, i) => `Entry ${i + 1}`),
+          datasets: [{
+            label: 'Keys per entry',
+            data: simulated.map(entry => Object.keys(entry).length),
+            borderColor: '#ff9800',
+            fill: false,
+            tension: 0.3
+          }]
+        },
+        options: { responsive: true }
+      });
+
+      const timestamps = reports.map(r => new Date(r.timestamp).toISOString().slice(0, 10));
+      const timeCounts = timestamps.reduce((acc, date) => {
+        acc[date] = (acc[date] || 0) + 1;
+        return acc;
+      }, {});
+      new Chart(document.getElementById('locationChart'), {
+        type: 'line',
+        data: {
+          labels: Object.keys(timeCounts),
+          datasets: [{
+            label: 'Reports/day',
+            data: Object.values(timeCounts),
+            borderColor: '#2196f3',
+            fill: false
+          }]
+        },
+        options: { responsive: true }
+      });
+    }
+
+    loadData();
+  </script>
+</body>
+</html>

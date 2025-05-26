@@ -1,20 +1,23 @@
 import SwiftUI
+import CoreLocation
 
 struct ReportView: View {
+    @StateObject private var locationHelper = LocationHelper()
     @State private var reportText = ""
     @State private var category = "Protest"
     @State private var status = ""
-    @StateObject private var locationHelper = LocationHelper()
+
     let categories = ["Protest", "Police Block", "Medical Aid Needed", "Other"]
 
     var body: some View {
         Form {
             Section(header: Text("Category")) {
                 Picker("Type", selection: $category) {
-                    ForEach(categories, id: \.self) { item in
-                        Text(item)
+                    ForEach(categories, id: \.self) {
+                        Text($0)
                     }
                 }
+                .pickerStyle(SegmentedPickerStyle())
             }
 
             Section(header: Text("Description")) {
@@ -25,44 +28,24 @@ struct ReportView: View {
                 sendReport()
             }
 
-            Text(status)
-                .foregroundColor(.green)
-        }
-        .onAppear {
-            locationHelper.requestPermission()
+            if !status.isEmpty {
+                Text(status).foregroundColor(.green)
             }
+        }
     }
 
-    // MARK: - Report Submission Logic
     func sendReport() {
-        guard let url = URL(string: "https://frog-ios-xm5a.onrender.com/report") else {
-            status = "❌ Invalid URL"
-            return
-        }
-
-        var request = URLRequest(url: url)
-        request.httpMethod = "POST"
-        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        let latitude = locationHelper.lastKnownLocation?.coordinate.latitude ?? 0.0
-        let longitude = locationHelper.lastKnownLocation?.coordinate.longitude ?? 0.0
-        let town = locationHelper.lastKnownTown ?? "Unknown"
+        let location = locationHelper.lastKnownLocation
+        let locString = location.map { "\($0.coordinate.latitude),\($0.coordinate.longitude)" } ?? "unknown"
 
         let payload: [String: Any] = [
             "category": category,
             "description": reportText,
-            "location": "\(latitude), \(longitude)",
-            "town": town
+            "location": locString
         ]
-        
 
-        request.httpBody = try? JSONSerialization.data(withJSONObject: payload)
-
-        URLSession.shared.dataTask(with: request) { _, _, _ in
-            DispatchQueue.main.async {
-                status = "✅ Report submitted"
-                reportText = ""
-            }
-        }.resume()
+        NetworkManager.postJSON(to: "report", payload: payload)
+        status = "✅ Report submitted"
+        reportText = ""
     }
 }
-

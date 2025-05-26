@@ -1,12 +1,12 @@
+
 import Foundation
 import CoreLocation
 import Combine
-import UIKit
-
-class LocationHelper: NSObject, ObservableObject, CLLocationManagerDelegate {
+final class LocationHelper: NSObject, ObservableObject, CLLocationManagerDelegate {
     @Published var lastKnownLocation: CLLocation?
     @Published var lastKnownTown: String?
     @Published var locationPermissionGranted: Bool = false
+    var onLocationFetched: ((CLLocation) -> Void)?
 
     private let manager = CLLocationManager()
     private let geocoder = CLGeocoder()
@@ -15,42 +15,47 @@ class LocationHelper: NSObject, ObservableObject, CLLocationManagerDelegate {
         super.init()
         manager.delegate = self
         manager.desiredAccuracy = kCLLocationAccuracyBest
-    }
-
-    func requestAndSendLocation() {
-        print("📡 Requesting one-time location update...")
-        manager.requestLocation()
-    }
-
-    func requestPermission() {
-        print("🔓 Requesting location permission...")
         manager.requestWhenInUseAuthorization()
+        manager.startUpdatingLocation()
     }
 
-    func checkPermissionStatus() {
-        let status = manager.authorizationStatus
+    func requestLocationPermission() {
+        manager.requestWhenInUseAuthorization()
+        manager.startUpdatingLocation()
+    }
+
+    func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
         locationPermissionGranted = (status == .authorizedWhenInUse || status == .authorizedAlways)
+        if locationPermissionGranted {
+            manager.startUpdatingLocation()
+        }
     }
 
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
-        guard let location = locations.last else {
-            print("⚠️ No location available.")
-            return
-        }
-
+        guard let location = locations.last else { return }
         DispatchQueue.main.async {
             self.lastKnownLocation = location
+            self.reverseGeocode(location: location)
+            self.sendLocationToBackend(location)
+            self.onLocationFetched?(location)
         }
-
-        print("✅ Location received: \(location.coordinate.latitude), \(location.coordinate.longitude)")
-        sendLocationToBackend(location)
-        reverseGeocode(location: location)
-        let timestamp = ISO8601DateFormatter().string(from: Date())
-        UserDefaults.standard.set(timestamp, forKey: "lastScreamTime")
     }
 
     func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
-        print("❌ Failed to get location: \(error.localizedDescription)")
+        print("❌ Location error: \(error.localizedDescription)")
+    }
+
+    private func reverseGeocode(location: CLLocation) {
+        geocoder.reverseGeocodeLocation(location) { placemarks, error in
+            guard let placemark = placemarks?.first, let town = placemark.locality else {
+                print("⚠️ No town found.")
+                return
+            }
+            DispatchQueue.main.async {
+                self.lastKnownTown = town
+            }
+            print("🏘 Detected town: \(town)")
+        }
     }
 
     private func sendLocationToBackend(_ location: CLLocation) {
@@ -61,28 +66,24 @@ class LocationHelper: NSObject, ObservableObject, CLLocationManagerDelegate {
             "timestamp": timestamp
         ]
 
-        print("📦 Sending payload to server: \(payload)")
-        NetworkManager.sendData(dict: payload)
-    }
+        guard let url = URL(string: "https://frog-ios-xm5a.onrender.com/location") else { return }
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
 
-    private func reverseGeocode(location: CLLocation) {
-        geocoder.reverseGeocodeLocation(location) { placemarks, error in
-            if let error = error {
-                print("❌ Reverse geocoding error: \(error.localizedDescription)")
-                return
-            }
-
-            guard let placemark = placemarks?.first,
-                  let town = placemark.locality else {
-                print("⚠️ No town found.")
-                return
-            }
-
-            DispatchQueue.main.async {
-                self.lastKnownTown = town
-            }
-
-            print("🏘 Detected town: \(town)")
+        do {
+            request.httpBody = try JSONSerialization.data(withJSONObject: payload)
+        } catch {
+            print("❌ Failed to encode payload: \(error)")
+            return
         }
+
+        URLSession.shared.dataTask(with: request) { data, response, error in
+            if let error = error {
+                print("❌ Failed to send location: \(error)")
+            } else {
+                print("📤 Location sent to backend successfully.")
+            }
+        }.resume()
     }
 }

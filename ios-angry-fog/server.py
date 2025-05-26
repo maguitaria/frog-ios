@@ -1,54 +1,203 @@
 from flask import Flask, request, jsonify
 from datetime import datetime
 from flask_cors import CORS
-import json
 import requests
 import os
 from dotenv import load_dotenv
+from flask_sqlalchemy import SQLAlchemy
+
 load_dotenv()
 
 app = Flask(__name__)
 CORS(app)
 
-# In-memory storage (for demo purposes)
-incident_reports = []
-simulated_data = []
-latest_location = {"latitude": None, "longitude": None, "timestamp": None}
+db_url = os.getenv("DATABASE_URL")
+if not db_url:
+    raise RuntimeError("DATABASE_URL not set in environment.")
+app.config['SQLALCHEMY_DATABASE_URI'] = db_url.replace("postgres://", "postgresql://", 1)
+db = SQLAlchemy(app)
+# ----------------------
+# Database Models
+# ----------------------
+class User(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(255), unique=True)
+    email = db.Column(db.String(255), unique=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+class Location(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    latitude = db.Column(db.Float, nullable=True)
+    longitude = db.Column(db.Float, nullable=True)
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+
+class BluetoothDevice(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    device_name = db.Column(db.String(255))
+    device_mac = db.Column(db.String(17), unique=True)
+    signal_strength = db.Column(db.Integer)
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+
+class WifiNetwork(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    ssid = db.Column(db.String(255))
+    bssid = db.Column(db.String(17), unique=True)
+    signal_strength = db.Column(db.Integer)
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+
+# Generic model for "stolen" data
+class StolenData(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    payload = db.Column(db.JSON)
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+    
+class Report(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    category = db.Column(db.String(80))
+    description = db.Column(db.String(200))
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+
+class SimulatedEntry(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    device = db.Column(db.String(80))
+    os = db.Column(db.String(80))
+    clipboard = db.Column(db.String(500))
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+
+
+# ----------------------
+# API ROUTES
+# ----------------------
+@app.route("/storestolen", methods=["POST"])
+def store_stolen():
+    data = request.get_json()
+    stolen = StolenData(payload=data)
+    db.session.add(stolen)
+    db.session.commit()
+    return jsonify({"status": "✅ stolen data saved"})
+
+@app.route("/getlateststolen", methods=["GET"])
+def get_latest_stolen():
+    latest = StolenData.query.order_by(StolenData.timestamp.desc()).first()
+    if not latest:
+        return jsonify({"error": "No data found"}), 404
+    return jsonify({"payload": latest.payload, "timestamp": latest.timestamp.isoformat()})
+
+@app.route('/locations', methods=['GET'])
+def get_all_locations():
+    locations = Location.query.order_by(Location.timestamp.desc()).all()
+    return jsonify([
+        {
+            "latitude": loc.latitude,
+            "longitude": loc.longitude,
+            "timestamp": loc.timestamp.isoformat()
+        }
+        for loc in locations
+    ])
+
+@app.route("/users", methods=["GET"])
+def get_all_users():
+    users = User.query.all()
+    return jsonify([{
+        "id": u.id,
+        "username": u.username,
+        "email": u.email,
+        "created_at": u.created_at.isoformat()
+    } for u in users])
+
+@app.route("/bluetooth", methods=["GET"])
+def get_bluetooth_by_user(user_id):
+    devices = BluetoothDevice.query.filter_by(user_id=user_id).all()
+    return jsonify([{
+        "device_name": d.device_name,
+        "device_mac": d.device_mac,
+        "signal_strength": d.signal_strength,
+        "timestamp": d.timestamp.isoformat()
+    } for d in devices])
+
+@app.route("/wifi", methods=["GET"])
+def get_wifi_by_user(user_id):
+    networks = WifiNetwork.query.filter_by(user_id=user_id).all()
+    return jsonify([{
+        "ssid": n.ssid,
+        "bssid": n.bssid,
+        "signal_strength": n.signal_strength,
+        "timestamp": n.timestamp.isoformat()
+    } for n in networks])
+
 
 @app.route("/")
 def home():
     return "🐸 FrogGuard API is running!"
 
-# 🧾 Endpoint to receive anonymous civil safety reports
+# 🧾 Save incident report
 @app.route("/report", methods=["POST"])
 def receive_report():
     data = request.json
-    data["timestamp"] = datetime.utcnow().isoformat()
-    incident_reports.append(data)
-    print(f"[+] Incident received: {data}")
+    report = Report(
+        category=data.get("category"),
+        description=data.get("description"),
+        timestamp=datetime.utcnow().isoformat()
+    )
+    db.session.add(report)
+    db.session.commit()
+    print(f"[+] Incident saved to DB: {data}")
     return jsonify({"status": "✅ report saved"})
 
-# 🧪 Endpoint to receive simulated privacy leak payloads
-@app.route("/simulate", methods=["POST"])
-def receive_simulated_data():
-    data = request.json
-    data["timestamp"] = datetime.utcnow().isoformat()
-    simulated_data.append(data)
-    print(f"[!] Simulated data received: {data}")
-    return jsonify({"status": "🧪 simulated data received"})
+# 🔍 Get recent reports
+@app.route("/reports", methods=["GET"])
+def get_reports():
+    reports = Report.query.order_by(Report.timestamp.desc()).limit(20).all()
+    return jsonify([{
+        "category": r.category,
+        "description": r.description,
+        "timestamp": r.timestamp
+    } for r in reports])
 
-# 📡 Optional: Receive user GPS location directly
+# # 🧪 Save simulated data
+# @app.route("/simulate", methods=["POST"])
+# def receive_simulated_data():
+#     data = request.json
+#     entry = SimulatedEntry(
+#         device=data.get("device"),
+#         os=data.get("os"),
+#         clipboard=data.get("clipboard"),
+#         timestamp=datetime.utcnow().isoformat()
+#     )
+#     db.session.add(entry)
+#     db.session.commit()
+#     print(f"[!] Simulated entry saved: {data}")
+#     return jsonify({"status": "🧪 simulated data saved"})
+
+# # 🧪 Get simulated entries
+# @app.route("/simulated", methods=["GET"])
+# def get_simulated():
+#     entries = SimulatedEntry.query.order_by(SimulatedEntry.timestamp.desc()).limit(20).all()
+#     return jsonify([{
+#         "device": e.device,
+#         "os": e.os,
+#         "clipboard": e.clipboard,
+#         "timestamp": e.timestamp
+#     } for e in entries])
+
+# 📍 Save latest location
 @app.route("/location", methods=["POST"])
 def receive_location():
     global latest_location
-    data = request.get_json()
-    data["timestamp"] = datetime.utcnow().isoformat()
+    data = request.json
     if "latitude" in data and "longitude" in data:
-        latest_location = data
-        print(f"[🐸] Frog location updated: {data}")
+        latest_location = {
+            "latitude": data["latitude"],
+            "longitude": data["longitude"],
+            "timestamp": datetime.utcnow().isoformat()
+        }
+        print(f"[🐸] Location saved: {latest_location}")
         return jsonify({"status": "📍 location saved"}), 200
     return jsonify({"error": "Missing coordinates"}), 400
 
+# 🌀 Air quality proxy
 @app.route("/air", methods=["GET"])
 def get_air_quality():
     lat = request.args.get("lat")
@@ -60,39 +209,12 @@ def get_air_quality():
 
     url = f"http://api.openweathermap.org/data/2.5/air_pollution?lat={lat}&lon={lon}&appid={api_key}"
     response = requests.get(url)
+    return jsonify(response.json()) if response.ok else jsonify({"error": "Failed to fetch data"}), 500
 
-    if response.ok:
-        return jsonify(response.json())
-    else:
-        return jsonify({"error": "Failed to fetch data"}), 500
-
-@app.route("/dashboard", methods=["GET"])
-def get_dashboard_data():
-    lat = request.args.get("lat")
-    lon = request.args.get("lon")
-
-    if not lat or not lon:
-        return jsonify({"error": "Missing lat/lon"}), 400
-
-    # Air Quality
-    owm_key = os.getenv("OWM_KEY")
-    air_url = f"http://api.openweathermap.org/data/2.5/air_pollution?lat={lat}&lon={lon}&appid={owm_key}"
-    air_data = requests.get(air_url).json()
-
-    # Conflict Data (ACLED API)
-    acled_key = os.getenv("ACLED_KEY")
-    acled_url = f"https://api.acleddata.com/acled/read?key={acled_key}&event_date=2024-01-01|{datetime.utcnow().date()}&latitude={lat}&longitude={lon}&limit=5"
-    conflict_data = requests.get(acled_url).json()
-
-    return jsonify({
-        "air_quality": air_data,
-        "conflict_events": conflict_data.get("data", [])
-    })
-
-# 🌍 Visual map of last frog scream (HTML UI)
+# 🌐 View latest location on map
 @app.route("/map", methods=["GET"])
 def show_map():
-    if latest_location["latitude"] is None:
+    if not latest_location["latitude"]:
         return "No frog has screamed yet 🐸"
 
     lat = latest_location["latitude"]
@@ -113,24 +235,18 @@ def show_map():
         <p><b>Latitude:</b> {lat}</p>
         <p><b>Longitude:</b> {lon}</p>
         <p><b>Time:</b> {time}</p>
-
         <h2>🗺️ Location on Map</h2>
-        <iframe
-            src="https://maps.google.com/maps?q={lat},{lon}&z=15&output=embed"
-            allowfullscreen>
-        </iframe>
+        <iframe src="https://maps.google.com/maps?q={lat},{lon}&z=15&output=embed"></iframe>
     </body>
     </html>
     """
 
-# 📥 View recent reports & simulated data
-@app.route("/reports", methods=["GET"])
-def get_reports():
-    return jsonify(incident_reports[-20:])
-
-@app.route("/simulated", methods=["GET"])
-def get_simulated():
-    return jsonify(simulated_data[-20:])
+# 🧾 Serve dashboard (HTML template)
+@app.route("/dashboard")
+def dashboard():
+    return app.send_static_file("frog_dashboard.html")
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000)
+   with app.app_context():
+    db.create_all()
+    app.run(host="0.0.0.0", port=5001)
