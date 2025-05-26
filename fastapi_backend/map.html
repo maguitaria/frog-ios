@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Location Map</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <style>
+    #map { height: 100vh; }
+  </style>
+</head>
+<body>
+
+<div id="map"></div>
+
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+<script>
+  const locationData = [
+  [
+    18,
+    60.1699,
+    24.9384,
+    "2025-05-25T13:56:40.504953+00:00"
+  ],
+  [
+    19,
+    65.1699,
+    24.9384,
+    "2025-05-25T14:25:44.798089+00:00"
+  ],
+  [
+    20,
+    60.1699,
+    44.9384,
+    "2025-05-25T14:31:01.281502+00:00"
+  ],
+  [
+    21,
+    60.1699,
+    24.9384,
+    "2025-05-25T16:17:47.299587+00:00"
+  ],
+  [
+    22,
+    60.1699,
+    14.9384,
+    "2025-05-25T17:08:39.803040+00:00"
+  ]
+];
+  const map = L.map('map').setView([60.1699, 24.9384], 3);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; OpenStreetMap contributors'
+  }).addTo(map);
+
+  locationData.forEach(([id, lat, lon, timestamp]) => {
+    const popupContent = `
+      <b>Time:</b> ${new Date(timestamp).toLocaleString()}<br>
+      <b>Latitude:</b> ${lat} m<br>
+      <b>Longitude:</b> ${lon}
+    `;
+    L.marker([lat, lon])
+      .addTo(map)
+      .bindPopup(popupContent);
+  });
+</script>
+
+</body>
+</html>
