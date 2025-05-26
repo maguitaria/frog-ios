@@ -8,7 +8,7 @@ struct MainTabView: View {
                     Label("Home", systemImage: "house")
                 }
 
-            MapView()
+            FrogMapView()
                 .tabItem {
                     Label("Map", systemImage: "map")
                 }

