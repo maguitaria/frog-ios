@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: frog-guard-api
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn main:app
+    envVars:
+      - key: OWM_KEY
+        sync: false
+      - key: ACLED_KEY
+        sync: false
