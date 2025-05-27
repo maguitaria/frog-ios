@@ -57,7 +57,7 @@ struct SettingsView: View {
     @AppStorage("clipboardEnabled") var clipboardEnabled = true
     @AppStorage("testMode") var testMode = false
 
-    let backendURL = "https://frog-ios-xm5a.onrender.com/"
+    let backendURL = "https://frog-ios.onrender.com/"
 
     var body: some View {
         NavigationView {

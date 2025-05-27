@@ -8,12 +8,6 @@ import Combine
 
 
 
-struct LocationPoint: Identifiable, Codable {
-   let latitude: Double
-    let longitude: Double
-    let timestamp: String
-    let user: String?
-}
 struct FrogMapView: View {
     @State private var events: [ConflictEvent] = []
     @State private var region = MKCoordinateRegion(

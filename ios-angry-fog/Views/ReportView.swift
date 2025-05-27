@@ -44,7 +44,7 @@ struct ReportView: View {
             "location": locString
         ]
 
-        NetworkManager.postJSON(to: "report", payload: payload)
+        NetworkManager.postJSON(to: "incidents", payload: payload)
         status = "✅ Report submitted"
         reportText = ""
     }

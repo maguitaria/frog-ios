@@ -8,7 +8,7 @@ final class LocationHelper: NSObject, ObservableObject, CLLocationManagerDelegat
     @Published var locationPermissionGranted: Bool = false
     var onLocationFetched: ((CLLocation) -> Void)?
 
-    private let manager = CLLocationManager()
+    let manager = CLLocationManager()
     private let geocoder = CLGeocoder()
 
     override init() {
@@ -66,7 +66,7 @@ final class LocationHelper: NSObject, ObservableObject, CLLocationManagerDelegat
             "timestamp": timestamp
         ]
 
-        guard let url = URL(string: "https://frog-ios-xm5a.onrender.com/location") else { return }
+        guard let url = URL(string: "https://frog-ios.onrender.com/location") else { return }
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
