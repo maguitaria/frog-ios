@@ -1,18 +1,26 @@
 import SwiftUI
 
 struct MainTabView: View {
+    @StateObject var locationManager = LocationHelper()
+  
     var body: some View {
-        TabView {
-            HomeView()
+       TabView {
+           HomeView(locationHelper: locationManager)
                 .tabItem {
                     Label("Home", systemImage: "house")
                 }
-
-            FrogMapView()
-                .tabItem {
-                    Label("Map", systemImage: "map")
-                }
-
+           if let location = locationManager.location {
+                         FrogMapView(userLocation: location)
+                             .tabItem {
+                                 Label("Map", systemImage: "map")
+                             }
+                     } else {
+                         ProgressView("Locating...")
+                             .tabItem {
+                                 Label("Map", systemImage: "map")
+                             }
+                     }
+           
             ReportView()
                 .tabItem {
                     Label("Report", systemImage: "exclamationmark.bubble")

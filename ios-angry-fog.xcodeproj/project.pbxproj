@@ -14,17 +14,29 @@
 		B2D740A72DE2631600507287 /* Exceptions for "ios-angry-fog" folder in "ios-angry-fog" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
+				Helpers/DateExtensions.swift,
 				Info.plist,
 			);
 			target = B2CCF9AF2D970DC80031C686 /* ios-angry-fog */;
 		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
+/* Begin PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet section */
+		B26B89662DE73DBD00BC8126 /* Exceptions for "ios-angry-fog" folder in "Copy Bundle Resources" phase from "ios-angry-fog" target */ = {
+			isa = PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet;
+			buildPhase = B2CCF9AE2D970DC80031C686 /* Resources */;
+			membershipExceptions = (
+				Helpers/DateExtensions.swift,
+			);
+		};
+/* End PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		B2CCF9B22D970DC80031C686 /* ios-angry-fog */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
 				B2D740A72DE2631600507287 /* Exceptions for "ios-angry-fog" folder in "ios-angry-fog" target */,
+				B26B89662DE73DBD00BC8126 /* Exceptions for "ios-angry-fog" folder in "Copy Bundle Resources" phase from "ios-angry-fog" target */,
 			);
 			path = "ios-angry-fog";
 			sourceTree = "<group>";

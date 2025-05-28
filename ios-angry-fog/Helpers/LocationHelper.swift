@@ -1,9 +1,9 @@
-
 import Foundation
 import CoreLocation
 import Combine
+
 final class LocationHelper: NSObject, ObservableObject, CLLocationManagerDelegate {
-    @Published var lastKnownLocation: CLLocation?
+    @Published var location: CLLocationCoordinate2D?
     @Published var lastKnownTown: String?
     @Published var locationPermissionGranted: Bool = false
     var onLocationFetched: ((CLLocation) -> Void)?
@@ -15,29 +15,36 @@ final class LocationHelper: NSObject, ObservableObject, CLLocationManagerDelegat
         super.init()
         manager.delegate = self
         manager.desiredAccuracy = kCLLocationAccuracyBest
-        manager.requestWhenInUseAuthorization()
-        manager.startUpdatingLocation()
     }
 
     func requestLocationPermission() {
-        manager.requestWhenInUseAuthorization()
-        manager.startUpdatingLocation()
-    }
+        let status = manager.authorizationStatus
 
-    func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
-        locationPermissionGranted = (status == .authorizedWhenInUse || status == .authorizedAlways)
-        if locationPermissionGranted {
+        if status == .notDetermined {
+            manager.requestWhenInUseAuthorization()
+        } else if status == .authorizedWhenInUse || status == .authorizedAlways {
             manager.startUpdatingLocation()
         }
     }
 
+    func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
+        locationPermissionGranted = (status == .authorizedWhenInUse || status == .authorizedAlways)
+
+        if locationPermissionGranted {
+            print("✅ Permission granted. Starting location updates.")
+            manager.startUpdatingLocation()
+        } else {
+            print("❌ Location permission denied or restricted.")
+        }
+    }
+
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
-        guard let location = locations.last else { return }
+        guard let lastKnownLocation = locations.last else { return }
         DispatchQueue.main.async {
-            self.lastKnownLocation = location
-            self.reverseGeocode(location: location)
-            self.sendLocationToBackend(location)
-            self.onLocationFetched?(location)
+            self.location = lastKnownLocation.coordinate
+                self.reverseGeocode(location: lastKnownLocation)
+                self.sendLocationToBackend(lastKnownLocation)
+                self.onLocationFetched?(lastKnownLocation)
         }
     }
 
