@@ -7,6 +7,7 @@ import Combine
 @MainActor
 struct HomeView: View {
     @ObservedObject var locationHelper: LocationHelper
+    @ObservedObject var api = APIService()
 
     @State private var weather: Weather?
     @State private var nearestEvents: [ConflictEvent] = []
@@ -154,28 +155,28 @@ struct HomeView: View {
     }
 
     var keywordShortcutsSection: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text("Hot Topics").font(.headline)
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 12) {
-                    ForEach(["Protests", "Safety", "Weather", "Roadblock", "Civil Rights"], id: \.self) { keyword in
-                        Button(action: {
-                            print("🔎 Searching for \(keyword)")
-                        }) {
-                            Text("#\(keyword)")
-                                .padding(.horizontal, 12)
-                                .padding(.vertical, 6)
-                                .background(Color.blue.opacity(0.15))
-                                .cornerRadius(16)
+            VStack(alignment: .leading, spacing: 8) {
+                Text("Hot Topics").font(.headline)
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 12) {
+                        ForEach(["Protests", "Safety", "Weather", "Roadblock", "Civil Rights"], id: \ .self) { keyword in
+                            Button(action: {
+                                print("🔎 Searching for \(keyword)")
+                            }) {
+                                Text("#\(keyword)")
+                                    .padding(.horizontal, 12)
+                                    .padding(.vertical, 6)
+                                    .background(Color.blue.opacity(0.15))
+                                    .cornerRadius(16)
+                            }
                         }
                     }
                 }
             }
+            .padding()
+            .background(Color(.secondarySystemBackground))
+            .cornerRadius(12)
         }
-        .padding()
-        .background(Color(.secondarySystemBackground))
-        .cornerRadius(12)
-    }
 
     // MARK: - Permissions & Data
 
@@ -207,18 +208,20 @@ struct HomeView: View {
     }
 
     private func requestPermissions() async {
-        locationHelper.requestLocationPermission()
+           locationHelper.requestLocationPermission()
 
-        locationHelper.onLocationFetched = { location in
-            let coord = location.coordinate
-            region.center = coord
+           locationHelper.onLocationFetched = { location in
+               let coord = location.coordinate
+               region.center = coord
 
-            Task {
-                await fetchWeather(for: location)
-                await fetchProtests(near: location)
-                isLoading = false
-            }
-        }
+               Task {
+                   await fetchWeather(for: location)
+                     await api.fetchNearbyEvents(at: coord, country: locationHelper.country ?? "")
+                     nearestEvents = api.nearestEvents
+                     
+                   isLoading = false
+               }
+           }
 
         var attempts = 0
         while locationHelper.location == nil && attempts < 20 {
@@ -230,9 +233,11 @@ struct HomeView: View {
 
         if let loc = locationHelper.location {
             region.center = loc
-            let location = CLLocation(latitude: loc.latitude, longitude: loc.longitude)
-            await fetchWeather(for: location)
-            await fetchProtests(near: location)
+            let clLocation = CLLocation(latitude: loc.latitude, longitude: loc.longitude)
+
+            await fetchWeather(for: clLocation)
+            let fetched = await api.fetchNearbyEvents(at: loc, country: locationHelper.country)
+            nearestEvents = api.nearestEvents
         }
 
         isLoading = false
@@ -243,43 +248,6 @@ struct HomeView: View {
             weather = try await service.weather(for: location)
         } catch {
             print("❌ Weather error: \(error)")
-        }
-    }
-
-    private func fetchProtests(near location: CLLocation) async {
-        let urlString = "https://api.acleddata.com/acled/read?key=6lkzj93Ra3lvdeBKiW7U&email=t2glma00@students.oamk.fi&limit=100"
-        guard let url = URL(string: urlString) else { return }
-
-        do {
-            let (data, _) = try await URLSession.shared.data(from: url)
-            let decoded = try JSONDecoder().decode(EventResponse.self, from: data)
-
-            let parsed = decoded.data.compactMap { item -> ConflictEvent? in
-                guard let lat = Double(item.latitude),
-                      let lon = Double(item.longitude) else { return nil }
-
-                return ConflictEvent(
-                    event_id_cnty: item.event_id_cnty,
-                    event_date: item.event_date,
-                    event_type: item.event_type,
-                    sub_event_type: item.sub_event_type,
-                    country: item.country,
-                    location: item.location,
-                    notes: item.notes,
-                    latitude: lat,
-                    longitude: lon,
-                    timestamp: item.timestamp
-                )
-            }
-
-            self.nearestEvents = parsed.sorted {
-                CLLocation(latitude: $0.latitude, longitude: $0.longitude)
-                    .distance(from: location) <
-                CLLocation(latitude: $1.latitude, longitude: $1.longitude)
-                    .distance(from: location)
-            }
-        } catch {
-            print("❌ Protest fetch error: \(error)")
         }
     }
 

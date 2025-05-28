@@ -5,6 +5,7 @@ import Combine
 final class LocationHelper: NSObject, ObservableObject, CLLocationManagerDelegate {
     @Published var location: CLLocationCoordinate2D?
     @Published var lastKnownTown: String?
+    @Published var country: String?
     @Published var locationPermissionGranted: Bool = false
     var onLocationFetched: ((CLLocation) -> Void)?
 
@@ -54,14 +55,19 @@ final class LocationHelper: NSObject, ObservableObject, CLLocationManagerDelegat
 
     private func reverseGeocode(location: CLLocation) {
         geocoder.reverseGeocodeLocation(location) { placemarks, error in
-            guard let placemark = placemarks?.first, let town = placemark.locality else {
-                print("⚠️ No town found.")
-                return
-            }
+            guard let placemark = placemarks?.first else { return }
+
             DispatchQueue.main.async {
-                self.lastKnownTown = town
+                self.lastKnownTown = placemark.locality
+                self.country = placemark.country
             }
-            print("🏘 Detected town: \(town)")
+
+            if let town = placemark.locality {
+                print("🏘 Town: \(town)")
+            }
+            if let country = placemark.country {
+                print("🌍 Country: \(country)")
+            }
         }
     }
 

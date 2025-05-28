@@ -5,13 +5,13 @@ import CoreLocation
 class APIService: ObservableObject {
     @Published var nearestEvents: [ConflictEvent] = []
     
-    func fetchNearbyEvents(at location: CLLocationCoordinate2D, country: String = "Ukraine", limit: Int = 200) async {
+    func fetchNearbyEvents(at location: CLLocationCoordinate2D, country: String? , limit: Int = 200) async {
         let apiKey = "6lkzj93Ra3lvdeBKiW7U"
         let email = "t2glma00@students.oamk.fi"
         let timestamp = DateFormatter.last7DaysString()
-
+        let countryParam = country ?? "Austria" // fallback
         let urlString = """
-        https://api.acleddata.com/acled/read?key=\(apiKey)&email=\(email)&timestamp=\(timestamp)&country=\(country)&limit=\(limit)
+        https://api.acleddata.com/acled/read?key=\(apiKey)&email=\(email)&timestamp=\(timestamp)&country=\(countryParam)&limit=\(limit)
         """
 
         guard let url = URL(string: urlString) else {

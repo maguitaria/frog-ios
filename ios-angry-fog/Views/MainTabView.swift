@@ -10,7 +10,7 @@ struct MainTabView: View {
                     Label("Home", systemImage: "house")
                 }
            if let location = locationManager.location {
-                         FrogMapView(userLocation: location)
+                         FrogMapView(locationHelper: locationManager, userLocation: location )
                              .tabItem {
                                  Label("Map", systemImage: "map")
                              }
