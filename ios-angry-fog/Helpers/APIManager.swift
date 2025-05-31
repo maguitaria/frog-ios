@@ -4,7 +4,7 @@ import CoreLocation
 
 class APIService: ObservableObject {
     @Published var nearestEvents: [ConflictEvent] = []
-    
+    @Published var rawEvents: [RawEvent] = []
     func fetchNearbyEvents(at location: CLLocationCoordinate2D, country: String? , limit: Int = 200) async {
         let apiKey = "6lkzj93Ra3lvdeBKiW7U"
         let email = "t2glma00@students.oamk.fi"

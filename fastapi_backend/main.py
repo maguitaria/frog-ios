@@ -75,7 +75,8 @@ def fetch_records(table: str):
     with get_connection() as conn:
         with conn.cursor() as cur:
             cur.execute(f"SELECT * FROM prod.{table};")
-            return cur.fetchall()
+            columns = [desc[0] for desc in cur.description]
+            return [dict(zip(columns, row)) for row in cur.fetchall()]
 
 # ----------------------
 # Data Insertion Logic

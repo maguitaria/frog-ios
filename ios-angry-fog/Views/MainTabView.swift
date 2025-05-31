@@ -2,7 +2,7 @@ import SwiftUI
 
 struct MainTabView: View {
     @StateObject var locationManager = LocationHelper()
-  
+    @StateObject var api = APIService()
     var body: some View {
        TabView {
            HomeView(locationHelper: locationManager)
@@ -10,12 +10,8 @@ struct MainTabView: View {
                     Label("Home", systemImage: "house")
                 }
            if let location = locationManager.location {
-                         FrogMapView(locationHelper: locationManager, userLocation: location )
-                             .tabItem {
-                                 Label("Map", systemImage: "map")
-                             }
-                     } else {
-                         ProgressView("Locating...")
+               let coord = location
+               FrogMapView(api: api, locationHelper: locationManager, userLocation: location )
                              .tabItem {
                                  Label("Map", systemImage: "map")
                              }
