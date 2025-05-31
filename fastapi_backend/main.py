@@ -147,12 +147,27 @@ def show_incidents():
 # HTML & Utility
 # ----------------------
 def serve_html(filename: str, data):
-    with open(filename, "r", encoding="utf-8") as f:
-        content = f.read()
+    # Detect and convert datetime values inside each row
+    def convert_row(row):
+        return [
+            item.isoformat() if isinstance(item, datetime) else item
+            for item in row
+        ]
+
+    converted_data = [convert_row(row) for row in data]
+
+    # Load HTML template
+    filepath = os.path.join(os.path.dirname(__file__), filename)
+    with open(filepath, "r", encoding="utf-8") as f:
+        html_content = f.read()
+
+    # Inject JS variable into HTML
     pattern = r'const locationData\s*=\s*(\[[\s\S]*?\]);'
-    replacement = f"const locationData = {json.dumps(data, indent=2)};"
-    updated = re.sub(pattern, replacement, content)
-    return HTMLResponse(content=updated)
+    replacement_data = f"const locationData = {json.dumps(converted_data, indent=2)};"
+    updated_html_content = re.sub(pattern, replacement_data, html_content)
+
+    return HTMLResponse(content=updated_html_content, status_code=200)
+
 
 def format_table(data, columns):
     html = f"<table border='1'><thead><tr>{''.join(f'<th>{col}</th>' for col in columns)}</tr></thead><tbody>"
