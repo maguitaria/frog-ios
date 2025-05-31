@@ -3,7 +3,7 @@
 ## 🎨 FrogGuard Design Overview
 
 ### 🧭 Structure Overview:
-![alt text](./screenshots/Selection.png)
+![alt text](../screenshots/Selection.png)
 
 **1. Home**
 

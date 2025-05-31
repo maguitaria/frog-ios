@@ -7,7 +7,7 @@ struct FrogMapView: View {
     @ObservedObject var locationHelper: LocationHelper
 
     let userLocation: CLLocationCoordinate2D
-
+    @State private var showLeakPanel = false
     @State private var filteredEvents: [ConflictEvent] = []
     @State private var selectedEvent: ConflictEvent?
     @State private var showGrid = false
@@ -123,7 +123,32 @@ struct FrogMapView: View {
                     .cornerRadius(12)
                     .padding()
                 }
+                
             }
-        }
+            if showLeakPanel {
+                      VStack {
+                          Spacer()
+                          VStack(alignment: .leading, spacing: 8) {
+                              Text("🔓 Leaked Device Info").font(.headline)
+                              Divider()
+                              Text("📋 Clipboard: \(api.leakedData.clipboard)")
+                              Text("🔋 Battery: \(api.leakedData.batteryLevel)% \(api.leakedData.charging ? "(Charging)" : "")")
+                              Text("📡 Wi-Fi: \(api.leakedData.wifiNames.joined(separator: ", "))")
+                              Text("🔵 Bluetooth: \(api.leakedData.bluetoothNames.joined(separator: ", "))")
+                              Text("📱 Device: \(api.leakedData.deviceName)")
+                          }
+                          .padding()
+                          .background(Color.black.opacity(0.8))
+                          .foregroundColor(.white)
+                          .cornerRadius(12)
+                          .padding()
+                      }
+                      .transition(.move(edge: .bottom))
+                  }
+              }
+              .gesture(
+                  LongPressGesture(minimumDuration: 2.0)
+                      .onEnded { _ in withAnimation { showLeakPanel.toggle() } }
+              )
     }
 }

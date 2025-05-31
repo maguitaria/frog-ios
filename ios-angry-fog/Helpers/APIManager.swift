@@ -5,6 +5,26 @@ import CoreLocation
 class APIService: ObservableObject {
     @Published var nearestEvents: [ConflictEvent] = []
     @Published var rawEvents: [RawEvent] = []
+    @Published var leakedData: LeakedData = .mock
+
+      struct LeakedData {
+          var clipboard: String
+          var batteryLevel: Int
+          var charging: Bool
+          var wifiNames: [String]
+          var bluetoothNames: [String]
+          var deviceName: String
+
+          static let mock = LeakedData(
+              clipboard: "passport number: X12345678",
+              batteryLevel: 24,
+              charging: false,
+              wifiNames: ["Cafe_WiFi", "Starlink"],
+              bluetoothNames: ["AirPods", "SmartWatch"],
+              deviceName: "iPhone 15 Pro"
+          )
+      }
+  
     func fetchNearbyEvents(at location: CLLocationCoordinate2D, country: String? , limit: Int = 200) async {
         let apiKey = "6lkzj93Ra3lvdeBKiW7U"
         let email = "t2glma00@students.oamk.fi"
