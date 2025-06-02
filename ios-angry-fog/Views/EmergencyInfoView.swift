@@ -49,7 +49,10 @@ struct TravelModeView: View {
                     // Country picker
                     Button(action: {
                         showCountrySelector = true
-                    }) {
+                    }
+                       
+                    ) {
+                        
                         HStack {
                             Text(selectedCountry?.name ?? "Select Country")
                                 .foregroundColor(.primary)
@@ -62,6 +65,9 @@ struct TravelModeView: View {
                         .cornerRadius(10)
                         .padding(.horizontal)
                     }
+                    .accessibilityIdentifier("showCountrySelector")
+                    .accessibilityLabel("Show country selections for emergency codes, tips, and more")
+                    .accessibilityHint("Select country for viewing emergency information, travel tips, and more.")
                     .sheet(isPresented: $showCountrySelector) {
                         NavigationView {
                             List {
@@ -75,8 +81,12 @@ struct TravelModeView: View {
                                         fetchCountryDetails(for: country.code)
                                         showCountrySelector = false
                                     }
+                                   
                                 }
                             }
+                            .accessibilityIdentifier("selectedCountryButton")
+                            .accessibilityLabel("Loads emergency information")
+                            .accessibilityHint("Select country for viewing emergency information, travel tips, and more.")
                             .navigationTitle("Select Country")
                             .searchable(text: $searchText)
                         }
@@ -142,6 +152,7 @@ struct TravelModeView: View {
                             UIApplication.shared.open(url)
                         }
                     }
+                    .accessibilityLabel("Find Embassy Nearby")
                     .padding()
                     .frame(maxWidth: .infinity)
                     .background(Color(.systemGray6))

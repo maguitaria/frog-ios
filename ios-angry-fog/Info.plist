@@ -2,16 +2,6 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
-	<string>Used to get your location even when switching views.</string>
-	<key>CFBundleDisplayName</key>
-	<string>Lalalaa</string>
-	<key>NSLocationUsageDescription</key>
-	<string>We want to use your location.
-&lt;string&gt;This app uses your location to show nearby civic alerts and safety data.&lt;/string&gt;
-</string>
-	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>This app uses your location to show nearby protests and weather alerts.</string>
 	<key>CFBundleDocumentTypes</key>
 	<array>
 		<dict/>

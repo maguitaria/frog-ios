@@ -1,0 +1,380 @@
+[1mdiff --git a/ios-angry-fog.xcodeproj/project.pbxproj b/ios-angry-fog.xcodeproj/project.pbxproj[m
+[1mindex 7c1d60e..ef7bcd8 100644[m
+[1m--- a/ios-angry-fog.xcodeproj/project.pbxproj[m
+[1m+++ b/ios-angry-fog.xcodeproj/project.pbxproj[m
+[36m@@ -6,7 +6,23 @@[m
+ 	objectVersion = 77;[m
+ 	objects = {[m
+ [m
+[32m+[m[32m/* Begin PBXBuildFile section */[m
+[32m+[m		[32mB26B898B2DEDB08900BC8126 /* FrogUITest.xctestplan in Resources */ = {isa = PBXBuildFile; fileRef = B26B898A2DEDB08900BC8126 /* FrogUITest.xctestplan */; };[m
+[32m+[m[32m/* End PBXBuildFile section */[m
+[32m+[m
+[32m+[m[32m/* Begin PBXContainerItemProxy section */[m
+[32m+[m		[32mB26B89982DEDB0FA00BC8126 /* PBXContainerItemProxy */ = {[m
+[32m+[m			[32misa = PBXContainerItemProxy;[m
+[32m+[m			[32mcontainerPortal = B2CCF9A82D970DC80031C686 /* Project object */;[m
+[32m+[m			[32mproxyType = 1;[m
+[32m+[m			[32mremoteGlobalIDString = B2CCF9AF2D970DC80031C686;[m
+[32m+[m			[32mremoteInfo = "ios-angry-fog";[m
+[32m+[m		[32m};[m
+[32m+[m[32m/* End PBXContainerItemProxy section */[m
+[32m+[m
+ /* Begin PBXFileReference section */[m
+[32m+[m		[32mB26B898A2DEDB08900BC8126 /* FrogUITest.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = FrogUITest.xctestplan; sourceTree = "<group>"; };[m
+[32m+[m		[32mB26B89922DEDB0FA00BC8126 /* ios-angry-fogUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "ios-angry-fogUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };[m
+ 		B2CCF9B02D970DC80031C686 /* ios-angry-fog.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "ios-angry-fog.app"; sourceTree = BUILT_PRODUCTS_DIR; };[m
+ /* End PBXFileReference section */[m
+ [m
+[36m@@ -32,6 +48,11 @@[m
+ /* End PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet section */[m
+ [m
+ /* Begin PBXFileSystemSynchronizedRootGroup section */[m
+[32m+[m		[32mB26B89932DEDB0FA00BC8126 /* ios-angry-fogUITests */ = {[m
+[32m+[m			[32misa = PBXFileSystemSynchronizedRootGroup;[m
+[32m+[m			[32mpath = "ios-angry-fogUITests";[m
+[32m+[m			[32msourceTree = "<group>";[m
+[32m+[m		[32m};[m
+ 		B2CCF9B22D970DC80031C686 /* ios-angry-fog */ = {[m
+ 			isa = PBXFileSystemSynchronizedRootGroup;[m
+ 			exceptions = ([m
+[36m@@ -44,6 +65,13 @@[m
+ /* End PBXFileSystemSynchronizedRootGroup section */[m
+ [m
+ /* Begin PBXFrameworksBuildPhase section */[m
+[32m+[m		[32mB26B898F2DEDB0FA00BC8126 /* Frameworks */ = {[m
+[32m+[m			[32misa = PBXFrameworksBuildPhase;[m
+[32m+[m			[32mbuildActionMask = 2147483647;[m
+[32m+[m			[32mfiles = ([m
+[32m+[m			[32m);[m
+[32m+[m			[32mrunOnlyForDeploymentPostprocessing = 0;[m
+[32m+[m		[32m};[m
+ 		B2CCF9AD2D970DC80031C686 /* Frameworks */ = {[m
+ 			isa = PBXFrameworksBuildPhase;[m
+ 			buildActionMask = 2147483647;[m
+[36m@@ -57,7 +85,9 @@[m
+ 		B2CCF9A72D970DC80031C686 = {[m
+ 			isa = PBXGroup;[m
+ 			children = ([m
+[32m+[m				[32mB26B898A2DEDB08900BC8126 /* FrogUITest.xctestplan */,[m
+ 				B2CCF9B22D970DC80031C686 /* ios-angry-fog */,[m
+[32m+[m				[32mB26B89932DEDB0FA00BC8126 /* ios-angry-fogUITests */,[m
+ 				B2CCF9B12D970DC80031C686 /* Products */,[m
+ 			);[m
+ 			sourceTree = "<group>";[m
+[36m@@ -66,6 +96,7 @@[m
+ 			isa = PBXGroup;[m
+ 			children = ([m
+ 				B2CCF9B02D970DC80031C686 /* ios-angry-fog.app */,[m
+[32m+[m				[32mB26B89922DEDB0FA00BC8126 /* ios-angry-fogUITests.xctest */,[m
+ 			);[m
+ 			name = Products;[m
+ 			sourceTree = "<group>";[m
+[36m@@ -73,6 +104,29 @@[m
+ /* End PBXGroup section */[m
+ [m
+ /* Begin PBXNativeTarget section */[m
+[32m+[m		[32mB26B89912DEDB0FA00BC8126 /* ios-angry-fogUITests */ = {[m
+[32m+[m			[32misa = PBXNativeTarget;[m
+[32m+[m			[32mbuildConfigurationList = B26B899A2DEDB0FA00BC8126 /* Build configuration list for PBXNativeTarget "ios-angry-fogUITests" */;[m
+[32m+[m			[32mbuildPhases = ([m
+[32m+[m				[32mB26B898E2DEDB0FA00BC8126 /* Sources */,[m
+[32m+[m				[32mB26B898F2DEDB0FA00BC8126 /* Frameworks */,[m
+[32m+[m				[32mB26B89902DEDB0FA00BC8126 /* Resources */,[m
+[32m+[m			[32m);[m
+[32m+[m			[32mbuildRules = ([m
+[32m+[m			[32m);[m
+[32m+[m			[32mdependencies = ([m
+[32m+[m				[32mB26B89992DEDB0FA00BC8126 /* PBXTargetDependency */,[m
+[32m+[m			[32m);[m
+[32m+[m			[32mfileSystemSynchronizedGroups = ([m
+[32m+[m				[32mB26B89932DEDB0FA00BC8126 /* ios-angry-fogUITests */,[m
+[32m+[m			[32m);[m
+[32m+[m			[32mname = "ios-angry-fogUITests";[m
+[32m+[m			[32mpackageProductDependencies = ([m
+[32m+[m			[32m);[m
+[32m+[m			[32mproductName = "ios-angry-fogUITests";[m
+[32m+[m			[32mproductReference = B26B89922DEDB0FA00BC8126 /* ios-angry-fogUITests.xctest */;[m
+[32m+[m			[32mproductType = "com.apple.product-type.bundle.ui-testing";[m
+[32m+[m		[32m};[m
+ 		B2CCF9AF2D970DC80031C686 /* ios-angry-fog */ = {[m
+ 			isa = PBXNativeTarget;[m
+ 			buildConfigurationList = B2CCF9BE2D970DCA0031C686 /* Build configuration list for PBXNativeTarget "ios-angry-fog" */;[m
+[36m@@ -102,9 +156,13 @@[m
+ 			isa = PBXProject;[m
+ 			attributes = {[m
+ 				BuildIndependentTargetsInParallel = 1;[m
+[31m-				LastSwiftUpdateCheck = 1620;[m
+[32m+[m				[32mLastSwiftUpdateCheck = 1630;[m
+ 				LastUpgradeCheck = 1620;[m
+ 				TargetAttributes = {[m
+[32m+[m					[32mB26B89912DEDB0FA00BC8126 = {[m
+[32m+[m						[32mCreatedOnToolsVersion = 16.3;[m
+[32m+[m						[32mTestTargetID = B2CCF9AF2D970DC80031C686;[m
+[32m+[m					[32m};[m
+ 					B2CCF9AF2D970DC80031C686 = {[m
+ 						CreatedOnToolsVersion = 16.2;[m
+ 					};[m
+[36m@@ -125,21 +183,37 @@[m
+ 			projectRoot = "";[m
+ 			targets = ([m
+ 				B2CCF9AF2D970DC80031C686 /* ios-angry-fog */,[m
+[32m+[m				[32mB26B89912DEDB0FA00BC8126 /* ios-angry-fogUITests */,[m
+ 			);[m
+ 		};[m
+ /* End PBXProject section */[m
+ [m
+ /* Begin PBXResourcesBuildPhase section */[m
+[32m+[m		[32mB26B89902DEDB0FA00BC8126 /* Resources */ = {[m
+[32m+[m			[32misa = PBXResourcesBuildPhase;[m
+[32m+[m			[32mbuildActionMask = 2147483647;[m
+[32m+[m			[32mfiles = ([m
+[32m+[m			[32m);[m
+[32m+[m			[32mrunOnlyForDeploymentPostprocessing = 0;[m
+[32m+[m		[32m};[m
+ 		B2CCF9AE2D970DC80031C686 /* Resources */ = {[m
+ 			isa = PBXResourcesBuildPhase;[m
+ 			buildActionMask = 2147483647;[m
+ 			files = ([m
+[32m+[m				[32mB26B898B2DEDB08900BC8126 /* FrogUITest.xctestplan in Resources */,[m
+ 			);[m
+ 			runOnlyForDeploymentPostprocessing = 0;[m
+ 		};[m
+ /* End PBXResourcesBuildPhase section */[m
+ [m
+ /* Begin PBXSourcesBuildPhase section */[m
+[32m+[m		[32mB26B898E2DEDB0FA00BC8126 /* Sources */ = {[m
+[32m+[m			[32misa = PBXSourcesBuildPhase;[m
+[32m+[m			[32mbuildActionMask = 2147483647;[m
+[32m+[m			[32mfiles = ([m
+[32m+[m			[32m);[m
+[32m+[m			[32mrunOnlyForDeploymentPostprocessing = 0;[m
+[32m+[m		[32m};[m
+ 		B2CCF9AC2D970DC80031C686 /* Sources */ = {[m
+ 			isa = PBXSourcesBuildPhase;[m
+ 			buildActionMask = 2147483647;[m
+[36m@@ -149,7 +223,49 @@[m
+ 		};[m
+ /* End PBXSourcesBuildPhase section */[m
+ [m
+[32m+[m[32m/* Begin PBXTargetDependency section */[m
+[32m+[m		[32mB26B89992DEDB0FA00BC8126 /* PBXTargetDependency */ = {[m
+[32m+[m			[32misa = PBXTargetDependency;[m
+[32m+[m			[32mtarget = B2CCF9AF2D970DC80031C686 /* ios-angry-fog */;[m
+[32m+[m			[32mtargetProxy = B26B89982DEDB0FA00BC8126 /* PBXContainerItemProxy */;[m
+[32m+[m		[32m};[m
+[32m+[m[32m/* End PBXTargetDependency section */[m
+[32m+[m
+ /* Begin XCBuildConfiguration section */[m
+[32m+[m		[32mB26B899B2DEDB0FA00BC8126 /* Debug */ = {[m
+[32m+[m			[32misa = XCBuildConfiguration;[m
+[32m+[m			[32mbuildSettings = {[m
+[32m+[m				[32mCODE_SIGN_STYLE = Automatic;[m
+[32m+[m				[32mCURRENT_PROJECT_VERSION = 1;[m
+[32m+[m				[32mGENERATE_INFOPLIST_FILE = YES;[m
+[32m+[m				[32mIPHONEOS_DEPLOYMENT_TARGET = 18.0;[m
+[32m+[m				[32mMARKETING_VERSION = 1.0;[m
+[32m+[m				[32mPRODUCT_BUNDLE_IDENTIFIER = "fhjoanneum.ios-angry-fogUITests";[m
+[32m+[m				[32mPRODUCT_NAME = "$(TARGET_NAME)";[m
+[32m+[m				[32mSWIFT_EMIT_LOC_STRINGS = NO;[m
+[32m+[m				[32mSWIFT_VERSION = 5.0;[m
+[32m+[m				[32mTARGETED_DEVICE_FAMILY = "1,2";[m
+[32m+[m				[32mTEST_TARGET_NAME = "ios-angry-fog";[m
+[32m+[m			[32m};[m
+[32m+[m			[32mname = Debug;[m
+[32m+[m		[32m};[m
+[32m+[m		[32mB26B899C2DEDB0FA00BC8126 /* Release */ = {[m
+[32m+[m			[32misa = XCBuildConfiguration;[m
+[32m+[m			[32mbuildSettings = {[m
+[32m+[m				[32mCODE_SIGN_STYLE = Automatic;[m
+[32m+[m				[32mCURRENT_PROJECT_VERSION = 1;[m
+[32m+[m				[32mGENERATE_INFOPLIST_FILE = YES;[m
+[32m+[m				[32mIPHONEOS_DEPLOYMENT_TARGET = 18.0;[m
+[32m+[m				[32mMARKETING_VERSION = 1.0;[m
+[32m+[m				[32mPRODUCT_BUNDLE_IDENTIFIER = "fhjoanneum.ios-angry-fogUITests";[m
+[32m+[m				[32mPRODUCT_NAME = "$(TARGET_NAME)";[m
+[32m+[m				[32mSWIFT_EMIT_LOC_STRINGS = NO;[m
+[32m+[m				[32mSWIFT_VERSION = 5.0;[m
+[32m+[m				[32mTARGETED_DEVICE_FAMILY = "1,2";[m
+[32m+[m				[32mTEST_TARGET_NAME = "ios-angry-fog";[m
+[32m+[m			[32m};[m
+[32m+[m			[32mname = Release;[m
+[32m+[m		[32m};[m
+ 		B2CCF9BC2D970DCA0031C686 /* Debug */ = {[m
+ 			isa = XCBuildConfiguration;[m
+ 			buildSettings = {[m
+[36m@@ -281,6 +397,10 @@[m
+ 				ENABLE_PREVIEWS = YES;[m
+ 				GENERATE_INFOPLIST_FILE = YES;[m
+ 				INFOPLIST_FILE = "ios-angry-fog/Info.plist";[m
+[32m+[m				[32mINFOPLIST_KEY_CFBundleDisplayName = FrogGuard;[m
+[32m+[m				[32mINFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "Used to get your location even when switching views.";[m
+[32m+[m				[32mINFOPLIST_KEY_NSLocationUsageDescription = "We want to use your location.\n<string>This app uses your location to show nearby civic alerts and safety data.</string>\n";[m
+[32m+[m				[32mINFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "This app uses your location to show nearby protests and weather alerts.";[m
+ 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;[m
+ 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;[m
+ 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;[m
+[36m@@ -291,7 +411,7 @@[m
+ 					"@executable_path/Frameworks",[m
+ 				);[m
+ 				MARKETING_VERSION = 1.0;[m
+[31m-				PRODUCT_BUNDLE_IDENTIFIER = "fhjoanneum.ios-angry-fog";[m
+[32m+[m				[32mPRODUCT_BUNDLE_IDENTIFIER = fhjoanneum.frogguard;[m
+ 				PRODUCT_NAME = "$(TARGET_NAME)";[m
+ 				SWIFT_EMIT_LOC_STRINGS = YES;[m
+ 				SWIFT_VERSION = 5.0;[m
+[36m@@ -311,6 +431,10 @@[m
+ 				ENABLE_PREVIEWS = YES;[m
+ 				GENERATE_INFOPLIST_FILE = YES;[m
+ 				INFOPLIST_FILE = "ios-angry-fog/Info.plist";[m
+[32m+[m				[32mINFOPLIST_KEY_CFBundleDisplayName = FrogGuard;[m
+[32m+[m				[32mINFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "Used to get your location even when switching views.";[m
+[32m+[m				[32mINFOPLIST_KEY_NSLocationUsageDescription = "We want to use your location.\n<string>This app uses your location to show nearby civic alerts and safety data.</string>\n";[m
+[32m+[m				[32mINFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "This app uses your location to show nearby protests and weather alerts.";[m
+ 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;[m
+ 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;[m
+ 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;[m
+[36m@@ -332,6 +456,15 @@[m
+ /* End XCBuildConfiguration section */[m
+ [m
+ /* Begin XCConfigurationList section */[m
+[32m+[m		[32mB26B899A2DEDB0FA00BC8126 /* Build configuration list for PBXNativeTarget "ios-angry-fogUITests" */ = {[m
+[32m+[m			[32misa = XCConfigurationList;[m
+[32m+[m			[32mbuildConfigurations = ([m
+[32m+[m				[32mB26B899B2DEDB0FA00BC8126 /* Debug */,[m
+[32m+[m				[32mB26B899C2DEDB0FA00BC8126 /* Release */,[m
+[32m+[m			[32m);[m
+[32m+[m			[32mdefaultConfigurationIsVisible = 0;[m
+[32m+[m			[32mdefaultConfigurationName = Release;[m
+[32m+[m		[32m};[m
+ 		B2CCF9AB2D970DC80031C686 /* Build configuration list for PBXProject "ios-angry-fog" */ = {[m
+ 			isa = XCConfigurationList;[m
+ 			buildConfigurations = ([m
+[1mdiff --git a/ios-angry-fog.xcodeproj/project.xcworkspace/xcuserdata/mariiaglushenkova.xcuserdatad/UserInterfaceState.xcuserstate b/ios-angry-fog.xcodeproj/project.xcworkspace/xcuserdata/mariiaglushenkova.xcuserdatad/UserInterfaceState.xcuserstate[m
+[1mindex 7dddd8b..b12ee8f 100644[m
+Binary files a/ios-angry-fog.xcodeproj/project.xcworkspace/xcuserdata/mariiaglushenkova.xcuserdatad/UserInterfaceState.xcuserstate and b/ios-angry-fog.xcodeproj/project.xcworkspace/xcuserdata/mariiaglushenkova.xcuserdatad/UserInterfaceState.xcuserstate differ
+[1mdiff --git a/ios-angry-fog.xcodeproj/xcuserdata/mariiaglushenkova.xcuserdatad/xcschemes/xcschememanagement.plist b/ios-angry-fog.xcodeproj/xcuserdata/mariiaglushenkova.xcuserdatad/xcschemes/xcschememanagement.plist[m
+[1mindex 65eca69..ba721fd 100644[m
+[1m--- a/ios-angry-fog.xcodeproj/xcuserdata/mariiaglushenkova.xcuserdatad/xcschemes/xcschememanagement.plist[m
+[1m+++ b/ios-angry-fog.xcodeproj/xcuserdata/mariiaglushenkova.xcuserdatad/xcschemes/xcschememanagement.plist[m
+[36m@@ -10,5 +10,13 @@[m
+ 			<integer>0</integer>[m
+ 		</dict>[m
+ 	</dict>[m
+[32m+[m	[32m<key>SuppressBuildableAutocreation</key>[m
+[32m+[m	[32m<dict>[m
+[32m+[m		[32m<key>B2CCF9AF2D970DC80031C686</key>[m
+[32m+[m		[32m<dict>[m
+[32m+[m			[32m<key>primary</key>[m
+[32m+[m			[32m<true/>[m
+[32m+[m		[32m</dict>[m
+[32m+[m	[32m</dict>[m
+ </dict>[m
+ </plist>[m
+[1mdiff --git a/ios-angry-fog/Info.plist b/ios-angry-fog/Info.plist[m
+[1mindex aa0abb5..0a1ef7a 100644[m
+[1m--- a/ios-angry-fog/Info.plist[m
+[1m+++ b/ios-angry-fog/Info.plist[m
+[36m@@ -2,16 +2,6 @@[m
+ <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">[m
+ <plist version="1.0">[m
+ <dict>[m
+[31m-	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>[m
+[31m-	<string>Used to get your location even when switching views.</string>[m
+[31m-	<key>CFBundleDisplayName</key>[m
+[31m-	<string>Lalalaa</string>[m
+[31m-	<key>NSLocationUsageDescription</key>[m
+[31m-	<string>We want to use your location.[m
+[31m-&lt;string&gt;This app uses your location to show nearby civic alerts and safety data.&lt;/string&gt;[m
+[31m-</string>[m
+[31m-	<key>NSLocationWhenInUseUsageDescription</key>[m
+[31m-	<string>This app uses your location to show nearby protests and weather alerts.</string>[m
+ 	<key>CFBundleDocumentTypes</key>[m
+ 	<array>[m
+ 		<dict/>[m
+[1mdiff --git a/ios-angry-fog/Views/EmergencyInfoView.swift b/ios-angry-fog/Views/EmergencyInfoView.swift[m
+[1mindex f70a288..f747662 100644[m
+[1m--- a/ios-angry-fog/Views/EmergencyInfoView.swift[m
+[1m+++ b/ios-angry-fog/Views/EmergencyInfoView.swift[m
+[36m@@ -49,7 +49,10 @@[m [mstruct TravelModeView: View {[m
+                     // Country picker[m
+                     Button(action: {[m
+                         showCountrySelector = true[m
+[31m-                    }) {[m
+[32m+[m[32m                    }[m
+[32m+[m[41m                       [m
+[32m+[m[32m                    ) {[m
+[32m+[m[41m                        [m
+                         HStack {[m
+                             Text(selectedCountry?.name ?? "Select Country")[m
+                                 .foregroundColor(.primary)[m
+[36m@@ -62,6 +65,9 @@[m [mstruct TravelModeView: View {[m
+                         .cornerRadius(10)[m
+                         .padding(.horizontal)[m
+                     }[m
+[32m+[m[32m                    .accessibilityIdentifier("showCountrySelector")[m
+[32m+[m[32m                    .accessibilityLabel("Show country selections for emergency codes, tips, and more")[m
+[32m+[m[32m                    .accessibilityHint("Select country for viewing emergency information, travel tips, and more.")[m
+                     .sheet(isPresented: $showCountrySelector) {[m
+                         NavigationView {[m
+                             List {[m
+[36m@@ -75,8 +81,12 @@[m [mstruct TravelModeView: View {[m
+                                         fetchCountryDetails(for: country.code)[m
+                                         showCountrySelector = false[m
+                                     }[m
+[32m+[m[41m                                   [m
+                                 }[m
+                             }[m
+[32m+[m[32m                            .accessibilityIdentifier("selectedCountryButton")[m
+[32m+[m[32m                            .accessibilityLabel("Loads emergency information")[m
+[32m+[m[32m                            .accessibilityHint("Select country for viewing emergency information, travel tips, and more.")[m
+                             .navigationTitle("Select Country")[m
+                             .searchable(text: $searchText)[m
+                         }[m
+[36m@@ -142,6 +152,7 @@[m [mstruct TravelModeView: View {[m
+                             UIApplication.shared.open(url)[m
+                         }[m
+                     }[m
+[32m+[m[32m                    .accessibilityLabel("Find Embassy Nearby")[m
+                     .padding()[m
+                     .frame(maxWidth: .infinity)[m
+                     .background(Color(.systemGray6))[m
+[1mdiff --git a/ios-angry-fog/Views/HomeView.swift b/ios-angry-fog/Views/HomeView.swift[m
+[1mindex 6ffdfa7..1c8fbd1 100644[m
+[1m--- a/ios-angry-fog/Views/HomeView.swift[m
+[1m+++ b/ios-angry-fog/Views/HomeView.swift[m
+[36m@@ -169,6 +169,7 @@[m [mstruct HomeView: View {[m
+                                     .background(Color.blue.opacity(0.15))[m
+                                     .cornerRadius(16)[m
+                             }[m
+[32m+[m[32m                            .accessibilityLabel("Toggle between map and grid view")[m
+                         }[m
+                     }[m
+                 }[m
+[1mdiff --git a/ios-angry-fog/Views/ProfileView.swift b/ios-angry-fog/Views/ProfileView.swift[m
+[1mindex 314bb79..5186a49 100644[m
+[1m--- a/ios-angry-fog/Views/ProfileView.swift[m
+[1m+++ b/ios-angry-fog/Views/ProfileView.swift[m
+[36m@@ -73,6 +73,7 @@[m [mstruct SettingsView: View {[m
+                     Button("Reset App Data") {[m
+                         resetAppData()[m
+                     }[m
+[32m+[m[32m                    .accessibilityLabel("Toggle between map and grid view")[m
+                 }[m
+ [m
+                 Section(header: Text("📱 App Information")) {[m
+[1mdiff --git a/ios-angry-fog/Views/ReportView.swift b/ios-angry-fog/Views/ReportView.swift[m
+[1mindex 25a2340..10169c2 100644[m
+[1m--- a/ios-angry-fog/Views/ReportView.swift[m
+[1m+++ b/ios-angry-fog/Views/ReportView.swift[m
+[36m@@ -27,7 +27,9 @@[m [mstruct ReportView: View {[m
+             Button("Send Report") {[m
+                 sendReport()[m
+             }[m
+[31m-[m
+[32m+[m[32m            .accessibilityIdentifier("SendReport")[m
+[32m+[m[32m            .accessibilityLabel("Send report")[m
+[32m+[m[32m            .accessibilityHint("Sends a report to the server")[m
+             if !status.isEmpty {[m
+                 Text(status).foregroundColor(.green)[m
+             }[m

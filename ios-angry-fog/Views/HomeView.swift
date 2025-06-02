@@ -169,6 +169,7 @@ struct HomeView: View {
                                     .background(Color.blue.opacity(0.15))
                                     .cornerRadius(16)
                             }
+                            .accessibilityLabel("Toggle between map and grid view")
                         }
                     }
                 }

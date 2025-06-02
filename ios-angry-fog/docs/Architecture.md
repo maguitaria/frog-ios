@@ -22,6 +22,8 @@ Together, they simulate real-time privacy leaks and civil incident reporting.
 - Calls backend endpoints using `URLSession` with JSON
 - Uses `@ObservedObject` to bind `APIService` data
 - Stores and filters events from `/map`, `/report`, `/sisu`
+- Accessibility (A11y) + UI Test, Button with `accessibilityLabel` and `UITest` for interaction 
+
 
 ---
 

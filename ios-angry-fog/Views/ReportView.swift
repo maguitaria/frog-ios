@@ -27,7 +27,9 @@ struct ReportView: View {
             Button("Send Report") {
                 sendReport()
             }
-
+            .accessibilityIdentifier("SendReport")
+            .accessibilityLabel("Send report")
+            .accessibilityHint("Sends a report to the server")
             if !status.isEmpty {
                 Text(status).foregroundColor(.green)
             }

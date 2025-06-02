@@ -73,6 +73,7 @@ struct SettingsView: View {
                     Button("Reset App Data") {
                         resetAppData()
                     }
+                    .accessibilityLabel("Toggle between map and grid view")
                 }
 
                 Section(header: Text("📱 App Information")) {
