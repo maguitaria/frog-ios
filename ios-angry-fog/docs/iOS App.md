@@ -1,7 +1,7 @@
  📦 FrogGuard App — Submission Report
 
 **Project:** ios-angry-fog  
-**Author:** Mariia Glushenkova, Christian Ackermann,Arthur-Tiberiu Nowotny 
+**Author:** Mariia Glushenkova  
 **Date:** 2 June 2025
 
 ---
