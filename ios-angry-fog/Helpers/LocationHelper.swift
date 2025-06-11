@@ -1,43 +1,51 @@
-
 import Foundation
 import CoreLocation
 import Combine
+
 final class LocationHelper: NSObject, ObservableObject, CLLocationManagerDelegate {
-    @Published var lastKnownLocation: CLLocation?
+    @Published var location: CLLocationCoordinate2D?
     @Published var lastKnownTown: String?
+    @Published var country: String?
     @Published var locationPermissionGranted: Bool = false
     var onLocationFetched: ((CLLocation) -> Void)?
 
-    private let manager = CLLocationManager()
+    let manager = CLLocationManager()
     private let geocoder = CLGeocoder()
 
     override init() {
         super.init()
         manager.delegate = self
         manager.desiredAccuracy = kCLLocationAccuracyBest
-        manager.requestWhenInUseAuthorization()
-        manager.startUpdatingLocation()
     }
 
     func requestLocationPermission() {
-        manager.requestWhenInUseAuthorization()
-        manager.startUpdatingLocation()
-    }
+        let status = manager.authorizationStatus
 
-    func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
-        locationPermissionGranted = (status == .authorizedWhenInUse || status == .authorizedAlways)
-        if locationPermissionGranted {
+        if status == .notDetermined {
+            manager.requestWhenInUseAuthorization()
+        } else if status == .authorizedWhenInUse || status == .authorizedAlways {
             manager.startUpdatingLocation()
         }
     }
 
+    func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
+        locationPermissionGranted = (status == .authorizedWhenInUse || status == .authorizedAlways)
+
+        if locationPermissionGranted {
+            print("✅ Permission granted. Starting location updates.")
+            manager.startUpdatingLocation()
+        } else {
+            print("❌ Location permission denied or restricted.")
+        }
+    }
+
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
-        guard let location = locations.last else { return }
+        guard let lastKnownLocation = locations.last else { return }
         DispatchQueue.main.async {
-            self.lastKnownLocation = location
-            self.reverseGeocode(location: location)
-            self.sendLocationToBackend(location)
-            self.onLocationFetched?(location)
+            self.location = lastKnownLocation.coordinate
+                self.reverseGeocode(location: lastKnownLocation)
+                self.sendLocationToBackend(lastKnownLocation)
+                self.onLocationFetched?(lastKnownLocation)
         }
     }
 
@@ -47,14 +55,19 @@ final class LocationHelper: NSObject, ObservableObject, CLLocationManagerDelegat
 
     private func reverseGeocode(location: CLLocation) {
         geocoder.reverseGeocodeLocation(location) { placemarks, error in
-            guard let placemark = placemarks?.first, let town = placemark.locality else {
-                print("⚠️ No town found.")
-                return
-            }
+            guard let placemark = placemarks?.first else { return }
+
             DispatchQueue.main.async {
-                self.lastKnownTown = town
+                self.lastKnownTown = placemark.locality
+                self.country = placemark.country
             }
-            print("🏘 Detected town: \(town)")
+
+            if let town = placemark.locality {
+                print("🏘 Town: \(town)")
+            }
+            if let country = placemark.country {
+                print("🌍 Country: \(country)")
+            }
         }
     }
 
@@ -66,7 +79,7 @@ final class LocationHelper: NSObject, ObservableObject, CLLocationManagerDelegat
             "timestamp": timestamp
         ]
 
-        guard let url = URL(string: "https://frog-ios-xm5a.onrender.com/location") else { return }
+        guard let url = URL(string: "https://frog-ios.onrender.com/location") else { return }
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")

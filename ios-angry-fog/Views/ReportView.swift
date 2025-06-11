@@ -27,7 +27,9 @@ struct ReportView: View {
             Button("Send Report") {
                 sendReport()
             }
-
+            .accessibilityIdentifier("SendReport")
+            .accessibilityLabel("Send report")
+            .accessibilityHint("Sends a report to the server")
             if !status.isEmpty {
                 Text(status).foregroundColor(.green)
             }
@@ -35,13 +37,16 @@ struct ReportView: View {
     }
 
     func sendReport() {
-        let location = locationHelper.lastKnownLocation
-        let locString = location.map { "\($0.coordinate.latitude),\($0.coordinate.longitude)" } ?? "unknown"
+        let location = locationHelper.location
+        let locString = location.map { "\($0.latitude),\($0.longitude)" } ?? "unknown"
 
         let payload: [String: Any] = [
             "category": category,
             "description": reportText,
-            "location": locString
+            "location": [
+                "latitude": location?.latitude,
+                "longitude": location?.longitude
+               ]
         ]
 
         NetworkManager.postJSON(to: "report", payload: payload)

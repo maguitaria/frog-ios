@@ -1,7 +1,7 @@
 import Foundation
 
 class NetworkManager {
-    static let baseURL = "https://frog-ios-xm5a.onrender.com"
+    static let baseURL = "https://frog-ios.onrender.com"
 
     static func postJSON(to endpoint: String, payload: [String: Any]) {
         guard let url = URL(string: "\(baseURL)/\(endpoint)") else {

@@ -1,11 +1,10 @@
 services:
   - type: web
-    name: frog-guard-api
-    env: python
-    buildCommand: pip install -r requirements.txt
-    startCommand: uvicorn main:app
+    name: fastapi-service
+    runtime: python
+    buildCommand: cd fastapi_backend/  ||  pip install -r requirements.txt
+    startCommand: cd fastapi_backend/ && uvicorn fastapi_backend.main:app --host 0.0.0.0 --port $PORT
     envVars:
-      - key: OWM_KEY
-        sync: false
-      - key: ACLED_KEY
-        sync: false
+      - key: PYTHON_VERSION
+        value: 3.11
+
