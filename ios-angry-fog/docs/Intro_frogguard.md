@@ -4,7 +4,7 @@
 FrogGuard is a SwiftUI-based iOS app that visualizes protest events and privacy leaks from mobile devices. It connects to a FastAPI backend to fetch global event data and user telemetry.
 
 
-![Feel free to see the demo: ](https://unioulu-my.sharepoint.com/:v:/g/personal/mglushen22_students_oamk_fi/EdD8NtvrC_BMo5Rj1ixigl0BDo81as9NkNsD8BSeHk48uA?nav=eyJyZWZlcnJhbEluZm8iOnsicmVmZXJyYWxBcHAiOiJPbmVEcml2ZUZvckJ1c2luZXNzIiwicmVmZXJyYWxBcHBQbGF0Zm9ybSI6IldlYiIsInJlZmVycmFsTW9kZSI6InZpZXciLCJyZWZlcnJhbFZpZXciOiJNeUZpbGVzTGlua0NvcHkifX0&e=goM7de)
+[Feel free to see the demo](https://unioulu-my.sharepoint.com/:v:/g/personal/mglushen22_students_oamk_fi/EdD8NtvrC_BMo5Rj1ixigl0BDo81as9NkNsD8BSeHk48uA?nav=eyJyZWZlcnJhbEluZm8iOnsicmVmZXJyYWxBcHAiOiJPbmVEcml2ZUZvckJ1c2luZXNzIiwicmVmZXJyYWxBcHBQbGF0Zm9ybSI6IldlYiIsInJlZmVycmFsTW9kZSI6InZpZXciLCJyZWZlcnJhbFZpZXciOiJNeUZpbGVzTGlua0NvcHkifX0&e=goM7de)
 
 ![alt text](../screenshots/Selection.png)
 ## 📱 Features
